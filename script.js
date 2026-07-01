@@ -4,14 +4,14 @@
 
 const TWITCH_CLIENT_ID   = "n3oqt780bnsi3lb2gzinxdbrrazork";
 const TWITCH_REDIRECT_URI = window.location.origin + window.location.pathname;
-const APPS_SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbysgMpFsSRjmtOX__wIjwtB-ELoIDkwn8hnI8deRsuq-_OjLiejefpwQYERpzumyW1P/exec";
-const TOOLBOX_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysgMpFsSRjmtOX__wIjwtB-ELoIDkwn8hnI8deRsuq-_OjLiejefpwQYERpzumyW1P/exec";
+const APPS_SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbzropDkFuE59VxwddPqwND3zMeGFBfUXjKT3oRug7dwGh0AYy_7U2CjtTnT6bfniB8MTQ/exec";
+const TOOLBOX_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzropDkFuE59VxwddPqwND3zMeGFBfUXjKT3oRug7dwGh0AYy_7U2CjtTnT6bfniB8MTQ/exec";
 
 const ALLOWED_USERS = [
   "ynnk99",
 ];
 
-const SPREADSHEET_ID = "1_yCgMCLdpTJ2YzXMD49cNqGGERivsGHyBsRrQqE5LXE";
+const SPREADSHEET_ID = "1Pl9S0GuodA5n23sBfN0cGgq5HTpedxdGuYYPyVG2GDs";
 
 // ── NG+ ─────────────────────────────────────────────────────────────────
 // Der "lebende" Tab, in dem aktuell gespielt/bearbeitet wird.
