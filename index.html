@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elden Ring – Boss Tracker</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.css">
+<!-- GDPR: consent.js blocks ALL external requests until the user makes a decision (Google Sheets + Google Analytics). Fonts and Chart.js are hosted locally and do not require consent. -->
+<script src="consent.js"></script>
+<script src="chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── EDITOR TOOLBOX ── -->
+<div class="editor-toolbox" id="editor-toolbox" style="display:none;">
+
+  <!-- Button: Timer -->
+  <div class="etb-item" id="etb-item-timer">
+    <button class="etb-icon-btn" onclick="toolboxOpenPanel('timer')" data-tip="Timer" data-tip-always="1">
+      <span>⏳</span>
+    </button>
+    <div class="etb-panel" id="etb-panel-timer">
+      <div class="etb-panel-title">Timer</div>
+      <div class="etb-timer-display" id="etb-timer-display">00:00:00</div>
+      <button class="etb-action-btn" id="etb-btn-L1" onclick="toolboxToggleTimer()">
+        <span class="etb-btn-icon">▶</span><span class="etb-btn-text">Start</span>
+      </button>
+      <button class="etb-action-btn etb-btn-reset" onclick="toolboxTimerReset()">
+        <span class="etb-btn-icon">↺</span><span class="etb-btn-text">Reset</span>
+      </button>
+      <button class="etb-action-btn etb-btn-toggle" id="etb-btn-O1" onclick="toolboxToggleCell('O1','etb-btn-O1')">
+        <span class="etb-btn-icon">👁</span><span class="etb-btn-text">Show</span>
+      </button>
+      <div class="etb-time-set">
+        <input type="number" class="etb-time-input" id="etb-elapsed-h"
+               min="0" max="99" placeholder="00"
+               onkeydown="if(event.key==='Enter')toolboxSetElapsed()">
+        <span class="etb-time-sep">:</span>
+        <input type="number" class="etb-time-input" id="etb-elapsed-m"
+               min="0" max="59" placeholder="00"
+               onkeydown="if(event.key==='Enter')toolboxSetElapsed()">
+        <span class="etb-time-sep">:</span>
+        <input type="number" class="etb-time-input" id="etb-elapsed-s"
+               min="0" max="59" placeholder="00"
+               onkeydown="if(event.key==='Enter')toolboxSetElapsed()">
+        <button class="etb-time-set-btn" onclick="toolboxSetElapsed()" data-tip="Set timer to this time" data-tip-always="1">↵</button>
+      </div>
+      <div class="etb-label-set">
+        <input type="text" class="etb-label-input" id="etb-timer-label-input"
+               placeholder="Timer label (empty = default)"
+               onkeydown="if(event.key==='Enter')toolboxSetTimerLabel()">
+        <button class="etb-time-set-btn" onclick="toolboxSetTimerLabel()" data-tip="Set timer label" data-tip-always="1">↵</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Button: OBS -->
+  <div class="etb-item" id="etb-item-obs">
+    <button class="etb-icon-btn" onclick="toolboxOpenPanel('obs')" data-tip="OBS" data-tip-always="1">
+      <span>📺</span>
+    </button>
+    <div class="etb-panel" id="etb-panel-obs">
+      <div class="etb-panel-title">OBS</div>
+      <button class="etb-action-btn etb-btn-toggle" id="etb-btn-O2" onclick="toolboxToggleCell('O2','etb-btn-O2')">
+        <span class="etb-btn-icon">▣</span><span class="etb-btn-text">Small overlay</span>
+      </button>
+      <button class="etb-action-btn etb-btn-danger-toggle" id="etb-btn-Z1" onclick="toolboxToggleCell('Z1','etb-btn-Z1')">
+        <span class="etb-btn-icon">⊘</span><span class="etb-btn-text">Overlay off</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Button: Filter -->
+  <div class="etb-item" id="etb-item-filter">
+    <button class="etb-icon-btn" onclick="toolboxOpenPanel('filter')" data-tip="Filter" data-tip-always="1">
+      <span>⚔</span>
+    </button>
+    <div class="etb-panel" id="etb-panel-filter">
+      <div class="etb-panel-title">Filter</div>
+      <button class="etb-action-btn etb-btn-toggle" id="etb-btn-T1" onclick="toolboxToggleCell('T1','etb-btn-T1')">
+        <span class="etb-btn-icon">○</span><span class="etb-btn-text">Open only</span>
+      </button>
+      <button class="etb-action-btn etb-btn-toggle" id="etb-btn-T2" onclick="toolboxToggleCell('T2','etb-btn-T2')">
+        <span class="etb-btn-icon">✓</span><span class="etb-btn-text">Done only</span>
+      </button>
+      <button class="etb-action-btn etb-btn-toggle" id="etb-btn-R1" onclick="toolboxToggleCell('R1','etb-btn-R1')">
+        <span class="etb-btn-icon">⚔</span><span class="etb-btn-text">Base Game</span>
+      </button>
+      <button class="etb-action-btn etb-btn-toggle" id="etb-btn-R2" onclick="toolboxToggleCell('R2','etb-btn-R2')">
+        <span class="etb-btn-icon">●</span><span class="etb-btn-text">DLC</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Button: NG+ -->
+  <div class="etb-item" id="etb-item-ngplus">
+    <button class="etb-icon-btn" onclick="toolboxOpenPanel('ngplus')" data-tip="NG+" data-tip-always="1">
+      <span>🔁</span>
+    </button>
+    <div class="etb-panel" id="etb-panel-ngplus">
+      <div class="etb-panel-title">New Game +</div>
+      <button class="etb-action-btn etb-btn-danger-toggle" id="etb-btn-ngplus-start" onclick="startNGPlusRun()">
+        <span class="etb-btn-icon">🔁</span><span class="etb-btn-text">Start NG+</span>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-wrapper">
+
+  <header class="site-header">
+
+    <!-- ── TWITCH LOGIN WIDGET ── -->
+    <div class="login-widget" id="login-widget">
+      <button class="twitch-login-btn" id="twitch-login-btn" onclick="loginWithTwitch()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#9146ff">
+          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
+        </svg>
+        Log in with Twitch
+      </button>
+      <div class="user-widget" id="user-widget">
+        <div class="user-avatar-placeholder" id="user-avatar-placeholder">?</div>
+        <img class="user-avatar" id="user-avatar" src="" alt="" style="display:none;">
+        <div class="user-name-wrap">
+          <span class="user-name" id="user-name">–</span>
+          <span class="user-role-badge" id="user-role-badge"></span>
+        </div>
+        <button class="user-logout-btn" onclick="logout()">Log out</button>
+      </div>
+    </div>
+
+    <h1>Elden Ring</h1>
+    <p class="subtitle">Boss Tracker &amp; Progress Overview</p>
+    <div id="live-badge" class="live-badge" aria-live="polite"></div>
+
+    <!-- ── NG+ RUN-SELECTOR ── -->
+    <div class="run-selector" id="run-selector">
+      <button class="run-selector-btn" onclick="toggleRunSelector()" data-tip="Select run (NG / NG+1 / …)" data-tip-always="1">
+        <span id="run-selector-label">🔴 NG</span>
+        <span class="run-selector-arrow">▾</span>
+      </button>
+      <div class="run-selector-list" id="run-selector-list"></div>
+    </div>
+
+    <div class="header-ornament">
+      <span class="ornament-rune">⚔</span>
+    </div>
+  </header>
+
+  <div class="auth-notice archive-notice" id="archive-banner">
+    <span class="notice-icon">📜</span>
+    <span id="archive-banner-text">You are viewing an archived run — read-only.</span>
+  </div>
+
+  <div class="auth-notice" id="auth-notice">
+    <span class="notice-icon">👁</span>
+    <span id="auth-notice-text">You are logged in as a viewer. Editing rights must be granted by an admin.</span>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-chip deaths-chip" id="stat-deaths">
+      <span class="icon">💀</span>
+      <span>Deaths:</span>
+      <span class="value" id="val-deaths">–</span>
+    </div>
+    <div class="stat-chip stat-chip-clickable" id="stat-bosses" onclick="openBossLevelPanel()" data-tip="Show defeated bosses sorted by level" data-tip-always="1">
+      <span class="icon">🏆</span>
+      <span>Bosses:</span>
+      <span class="value" id="val-bosses">–</span>
+      <span class="stat-chip-arrow">▾</span>
+    </div>
+    <div class="stat-chip" id="stat-percent">
+      <span class="icon">📜</span>
+      <span>Completion:</span>
+      <span class="value" id="val-percent">–</span>
+    </div>
+    <div class="stat-chip avg-chip" id="stat-avg">
+      <span class="icon">⚖️</span>
+      <span>Avg deaths/boss:</span>
+      <span class="value" id="val-avg">–</span>
+    </div>
+    <div class="stat-chip" id="timer-chip">
+      <span class="icon">⏳</span>
+      <span id="val-timer-label">Current boss:</span>
+      <span class="value timer-value" id="val-timer">00:00:00</span>
+    </div>
+  </div>
+
+  <!-- ── FELDTODE (nur Editoren) ── -->
+  <div class="field-deaths-bar" id="field-deaths-bar">
+    <span class="ctrl-label">Other deaths:</span>
+    <div class="field-deaths-chip" id="fdeath-chip-base">
+      <span class="field-deaths-label">⚔ Base Game</span>
+      <div class="field-deaths-controls">
+        <button class="fdeath-btn fdeath-minus" onclick="adjustFieldDeaths('base',-1)">−</button>
+        <span class="fdeath-val" id="fdeath-val-base">–</span>
+        <button class="fdeath-btn fdeath-plus" onclick="adjustFieldDeaths('base',+1)">+</button>
+      </div>
+    </div>
+    <div class="divider" id="fdeath-divider"></div>
+    <div class="field-deaths-chip" id="fdeath-chip-dlc">
+      <span class="field-deaths-label">🌑 DLC</span>
+      <div class="field-deaths-controls">
+        <button class="fdeath-btn fdeath-minus" onclick="adjustFieldDeaths('dlc',-1)">−</button>
+        <span class="fdeath-val" id="fdeath-val-dlc">–</span>
+        <button class="fdeath-btn fdeath-plus" onclick="adjustFieldDeaths('dlc',+1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-bar">
+    <span class="ctrl-label">Display:</span>
+    <button class="toggle-btn" id="btn-basegame" onclick="toggleFlag('base')">
+      <span class="dot"></span> Base Game
+    </button>
+    <button class="toggle-btn" id="btn-dlc" onclick="toggleFlag('dlc')">
+      <span class="dot"></span> Shadow of the Erdtree DLC
+    </button>
+    <button class="toggle-btn" id="btn-mainbosses" onclick="toggleFlag('main')">
+      <span class="dot"></span> Main Bosses
+    </button>
+    <div class="divider"></div>
+    <button class="toggle-btn" id="btn-expand-all" onclick="setAllCollapsed(false)">
+      <span class="dot"></span> Expand all
+    </button>
+    <button class="toggle-btn" id="btn-collapse-all" onclick="setAllCollapsed(true)">
+      <span class="dot"></span> Collapse all
+    </button>
+    <div style="width:100%;height:0;flex-basis:100%;"></div>
+    <button class="toggle-btn done-btn" id="btn-done" onclick="toggleFlag('done')">
+      <span class="dot"></span> ✓ Done
+    </button>
+    <button class="toggle-btn open-btn" id="btn-open" onclick="toggleFlag('open')">
+      <span class="dot"></span> ○ Open
+    </button>
+    <div class="divider"></div>
+    <button class="toggle-btn twitch-btn" id="btn-clips" onclick="openClipModal()">
+      <span class="dot"></span>
+      🎬 Clip Collection
+      <span id="btn-clips-count" style="font-family:'Crimson Pro',serif;font-size:12px;opacity:0.6;"></span>
+    </button>
+  </div>
+
+  <!-- ── BINGO ── -->
+  <section class="bingo-section" id="bingo-section" style="display:none;">
+    <div class="bingo-panel" id="bingo-panel">
+      <div class="bingo-panel-header" onclick="toggleBingoPanel()">
+        <div class="ranking-header-left">
+          <span class="ranking-toggle-icon" id="bingo-toggle-icon">▼</span>
+          <span class="ranking-title"> Bingo</span>
+          <span class="ranking-subtitle" id="bingo-subtitle">— loading fields…</span>
+        </div>
+      </div>
+      <div class="bingo-panel-body" id="bingo-panel-body">
+        <div class="bingo-grid" id="bingo-grid"></div>
+        <div class="bingo-win-banner" id="bingo-win-banner" style="display:none;">
+          ⚔&nbsp;&nbsp;B I N G O&nbsp;&nbsp;⚔
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="refresh-indicator" id="refresh-indicator">
+    <span class="refresh-dot" id="refresh-dot"></span>
+    <span id="refresh-text">Connected</span>
+  </div>
+
+  <!-- RANKING PANEL -->
+  <div class="ranking-panel" id="ranking-panel">
+    <div class="ranking-header" onclick="toggleRanking()">
+      <div class="ranking-header-left">
+        <span class="ranking-toggle-icon">▼</span>
+        <span class="ranking-title">☠ Death Ranking</span>
+        <span class="ranking-subtitle" id="ranking-subtitle">— the toughest encounters</span>
+      </div>
+    </div>
+    <div class="ranking-body">
+      <div class="ranking-list" id="ranking-list">
+        <div class="ranking-empty">No data loaded yet…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input
+      class="search-input"
+      id="search-input"
+      type="text"
+      placeholder="Search boss… e.g. Malenia, Margit, Mohg"
+      autocomplete="off"
+      spellcheck="false"
+      oninput="onSearchInput(this.value)"
+    >
+    <span class="search-result-count" id="search-result-count"></span>
+    <span class="search-clear" id="search-clear" onclick="clearSearch()" data-tip="Clear search" data-tip-always="1">✕</span>
+    <span class="search-shortcut-hint" data-tip="Keyboard shortcuts: Ctrl+F = search, Esc = close, +/− = deaths (in boss menu)" data-tip-always="1">⌨</span>
+  </div>
+
+  <section id="pinned-section">
+    <div class="pinned-header">📌 Pinned Bosses</div>
+    <div class="pinned-list" id="pinned-list"></div>
+  </section>
+
+  <main id="main-content">
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-spinner"></div>
+      <span>Loading data from the archives&hellip;</span>
+    </div>
+    <div class="areas-grid" id="areas-grid" style="display:none;"></div>
+  </main>
+
+  <section id="chart-section" style="display:none; margin-top: 30px;">
+    <div class="ranking-panel" id="chart-panel">
+      <div class="ranking-header" onclick="toggleChart()">
+        <div class="ranking-header-left">
+          <span class="ranking-toggle-icon" id="chart-toggle-icon">▼</span>
+          <span class="ranking-title">📅 Bosses per Day</span>
+          <span class="ranking-subtitle" id="chart-subtitle">— progress over time</span>
+        </div>
+      </div>
+      <div class="ranking-body" id="chart-body">
+        <div style="padding: 20px 24px;">
+          <canvas id="boss-chart" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page-wrapper -->
+
+<div class="toast" id="toast"></div>
+
+<footer class="site-footer">
+  &copy; ynnk99 &bull; Data is loaded from Google Sheets every 5 seconds &bull; Elden Ring Boss Tracker
+  &bull; <a href="#" class="footer-privacy-link" onclick="document.getElementById('privacy-modal').style.display='flex'; return false;">Privacy Policy</a>
+  &bull; <a href="#" class="footer-privacy-link" onclick="document.getElementById('impressum-modal').style.display='flex'; return false;">Legal Notice</a>
+</footer>
+
+<!-- ── IMPRESSUM MODAL ── -->
+<div id="impressum-modal" style="display:none;" class="privacy-modal-backdrop" onclick="if(event.target===this)this.style.display='none'">
+  <div class="privacy-modal-box" role="dialog" aria-modal="true" aria-label="Legal Notice">
+    <button class="privacy-modal-close" onclick="document.getElementById('impressum-modal').style.display='none'" data-tip="Close" data-tip-always="1">✕</button>
+    <div class="privacy-modal-content">
+      <h2>Legal Notice</h2>
+      <h3>Information pursuant to § 5 DDG (German law)</h3>
+      <p>
+        ynnk99<br>
+        (Private individual, non-commercial project)
+      </p>
+      <h3>Contact</h3>
+      <p>
+        E-Mail: <a href="mailto:yalolp@gmail.com">yalolp@gmail.com</a>
+      </p>
+      <h3>Note</h3>
+      <p>
+        This website is a private, non-commercial fan project. There is no affiliation with FromSoftware, Bandai Namco, or Twitch Interactive, Inc.
+      </p>
+      <div class="privacy-modal-footer">
+        <span class="privacy-modal-date">Last updated: May 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRIVACY POLICY MODAL ── -->
+<div id="privacy-modal" style="display:none;" class="privacy-modal-backdrop" onclick="if(event.target===this)this.style.display='none'">
+  <div class="privacy-modal-box" role="dialog" aria-modal="true" aria-label="Privacy Policy">
+    <button class="privacy-modal-close" onclick="document.getElementById('privacy-modal').style.display='none'" data-tip="Close" data-tip-always="1">✕</button>
+    <div class="privacy-modal-content">
+
+      <h2>Privacy Policy</h2>
+
+      <h3>1. Responsible Party</h3>
+      <p>This website is a private, non-commercial fan project (ynnk99). Privacy-related inquiries can be submitted via the Twitch or Discord channel.</p>
+
+      <h3>2. What this site is</h3>
+      <p>The Elden Ring Boss Tracker is a publicly accessible overlay tool that visualizes progress through an Elden Ring playthrough. Data is loaded live from Google Sheets and refreshed every five seconds. No user data is stored on our own servers.</p>
+
+      <h3>3. Google Analytics</h3>
+      <p>With your consent, this site uses Google Analytics 4, a web analytics service provided by Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA. Your IP address is transmitted to Google servers in the USA and processed there in anonymized form. Google Analytics sets cookies to collect usage statistics (e.g. page views, time on page). Data is transferred to the USA on the basis of the EU Standard Contractual Clauses.</p>
+      <p><strong>Legal basis:</strong> Art. 6(1)(a) GDPR (consent).<br>
+      You can withdraw your consent at any time via the "Withdraw consent" link in the cookie banner, which will be shown again after withdrawal.</p>
+      <p>More information: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a> &nbsp;·&nbsp; <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">Google Analytics Opt-out</a></p>
+
+      <h3>4. Google Sheets (data retrieval)</h3>
+      <p>After you give consent in the cookie banner, boss data (progress, deaths, times) is regularly loaded via HTTP request from a publicly shared Google spreadsheet. Your IP address is transmitted to Google LLC, USA as part of normal HTTP communication. No further personal data is stored or processed from this request. No external requests are made before you make a decision in the cookie banner.<br>
+      <strong>Legal basis:</strong> Art. 6(1)(a) GDPR (consent). You can withdraw your consent at any time via the "Reset cookie consent" button at the end of this privacy policy.</p>
+
+      <h3>5. Twitch login (optional editor access)</h3>
+      <p>Certain editing features require a login via Twitch OAuth. You will be redirected to the Twitch Interactive, Inc. (USA) website. After successful authentication, the site stores your Twitch access token and Twitch username exclusively in your browser's <code>localStorage</code> – no data is transmitted to our own servers. The data is deleted when you log out or remains until you delete it manually.<br>
+      <strong>Legal basis:</strong> Art. 6(1)(a) GDPR (consent through active login).</p>
+
+      <h3>6. Local storage (localStorage)</h3>
+      <p>This site uses your browser's <code>localStorage</code> to store your cookie consent as well as your Twitch token, if applicable. This data never leaves your browser and is not accessible to other websites.</p>
+
+      <h3>7. Hosting</h3>
+      <p>This site is hosted via GitHub Pages (GitHub, Inc., USA). GitHub may log technical access data (IP address, timestamp) in the process. More information: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub Privacy Statement</a>.</p>
+
+      <h3>8. Your rights</h3>
+      <p>You have the right to access, rectify, erase, and restrict the processing of your data, as well as the right to data portability. You can file complaints with the competent data protection authority (in Germany: the relevant state data protection commissioner).</p>
+
+      <div class="privacy-modal-footer">
+        <button class="privacy-consent-reset-btn" onclick="window.cookieConsent && window.cookieConsent.reset()">Reset cookie consent</button>
+        <span class="privacy-modal-date">Last updated: May 2026</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── BOSS CONTEXT MENU ── -->
+<div class="boss-menu" id="boss-menu" role="menu">
+  <div class="boss-menu-header">
+    <div class="boss-menu-bossname" id="menu-boss-name">–</div>
+    <div class="boss-menu-areaname" id="menu-area-name">–</div>
+  </div>
+  <div class="boss-menu-body">
+    <span class="boss-menu-section-label">Deaths</span>
+    <div class="boss-menu-deaths-row">
+      <button class="boss-menu-deaths-btn danger" onclick="menuAdjustDeaths(-1)" data-tip="−1 death" data-tip-always="1">−</button>
+      <div>
+        <div class="boss-menu-deaths-val" id="menu-deaths-val">0</div>
+        <div class="boss-menu-deaths-label">Deaths</div>
+      </div>
+      <button class="boss-menu-deaths-btn" onclick="menuAdjustDeaths(1)" data-tip="+1 death" data-tip-always="1">+</button>
+    </div>
+    <div class="boss-menu-divider"></div>
+    <span class="boss-menu-section-label">Level at kill</span>
+    <div class="boss-menu-level-row">
+      <input
+        type="text"
+        inputmode="numeric"
+        id="menu-level-input"
+        class="boss-menu-level-input"
+        placeholder="e.g. 120 or 129/1"
+        onkeydown="menuLevelKeydown(event)"
+        onblur="menuSetLevel(this.value)"
+      />
+    </div>
+    <div class="boss-menu-divider"></div>
+    <span class="boss-menu-section-label">Actions</span>
+    <div class="boss-menu-actions">
+      <button class="boss-menu-action-btn" id="menu-done-btn" onclick="menuToggleDone()">
+        <span class="action-icon" id="menu-done-icon">☐</span>
+        <span id="menu-done-label">Mark as defeated</span>
+      </button>
+      <button class="boss-menu-action-btn" id="menu-pin-btn" onclick="menuTogglePin()">
+        <span class="action-icon" id="menu-pin-icon">📌</span>
+        <span id="menu-pin-label">Pin</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── QUICK CLIP MENU (Rechtsklick auf Boss) ── -->
+<div class="quick-clip-menu" id="quick-clip-menu" role="dialog">
+  <div class="quick-clip-header">
+    <span class="quick-clip-icon">🎬</span>
+    <span class="quick-clip-title">Add clip</span>
+    <button class="quick-clip-close" onclick="closeQuickClipMenu()" data-tip="Close" data-tip-always="1">✕</button>
+  </div>
+  <div class="quick-clip-boss-label" id="quick-clip-boss-name">–</div>
+  <div class="quick-clip-body">
+    <input
+      type="text"
+      id="quick-clip-url"
+      class="quick-clip-input"
+      placeholder="Twitch clip link…"
+      onkeydown="if(event.key==='Enter')submitQuickClip()"
+    />
+    <select id="quick-clip-cat" class="quick-clip-select">
+      <option value="General">General</option>
+      <option value="Bosskill">Bosskill</option>
+      <option value="Funny Moment">Funny Moment</option>
+      <option value="Rage">Rage</option>
+      <option value="Other">Other</option>
+    </select>
+    <div id="quick-clip-feedback" class="quick-clip-feedback"></div>
+    <button class="quick-clip-submit" onclick="submitQuickClip()">Save clip</button>
+  </div>
+</div>
+
+<!-- ── CLIP MODAL ── -->
+<div class="clip-modal-backdrop" id="clip-backdrop" onclick="closeClipModal()"></div>
+
+<div class="clip-modal" id="clip-modal" role="dialog" aria-modal="true" aria-label="Clip Collection">
+  <div class="clip-modal-inner">
+    <div class="clip-modal-header">
+      <div class="clip-modal-title">
+        <h2>Clip&#8209;Collection</h2>
+        <div class="twitch-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#9146ff"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+          <span>Twitch</span>
+          <span class="clip-count" id="modal-clip-count">0</span> Clips
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <button class="clip-view-toggle" id="clip-view-toggle" onclick="toggleClipViewMode()" data-tip="Reel mode" data-tip-always="1">
+          <span class="clip-view-toggle-icon">▤</span>
+        </button>
+        <button class="add-clip-btn" id="add-clip-btn" onclick="toggleAddClipPanel()">
+          ➕ Add clip
+        </button>
+        <button class="clip-close-btn" onclick="closeClipModal()" data-tip="Close" data-tip-always="1">✕</button>
+      </div>
+    </div>
+
+    <!-- ── ADD CLIP PANEL ── -->
+    <div class="add-clip-panel" id="add-clip-panel">
+      <div class="add-clip-form">
+        <div class="add-clip-field">
+          <label for="clip-url-input">Twitch link</label>
+          <input class="add-clip-input" id="clip-url-input" type="text"
+            placeholder="https://clips.twitch.tv/…" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="add-clip-divider"></div>
+        <div class="add-clip-field">
+          <label for="clip-cat-select">Category</label>
+          <select class="add-clip-select" id="clip-cat-select">
+            <option value="General">General</option>
+            <option value="Bosskill">Bosskill</option>
+            <option value="Funny Moment">Funny Moment</option>
+            <option value="Rage">Rage</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="add-clip-row2">
+        <div class="add-clip-field">
+          <label for="clip-title-input">Title <span style="opacity:0.45;font-family:'Crimson Pro',serif;font-style:italic;text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <input class="add-clip-input" id="clip-title-input" type="text"
+            placeholder="e.g. Malenia defeated on first try" autocomplete="off">
+        </div>
+        <div class="add-clip-field">
+          <label for="clip-boss-select">Boss <span style="opacity:0.45;font-family:'Crimson Pro',serif;font-style:italic;text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <select class="add-clip-select" id="clip-boss-select">
+            <option value="">– No boss –</option>
+          </select>
+        </div>
+        <button class="add-clip-submit" id="add-clip-submit" onclick="submitNewClip()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+          Save clip
+        </button>
+      </div>
+      <div class="add-clip-feedback" id="add-clip-feedback"></div>
+    </div>
+
+    <!-- ── DATE FILTER ── -->
+    <div class="clip-date-filter" id="clip-date-filter">
+      <button class="clip-date-btn active" onclick="setClipDateFilter('all')" data-filter="all">All Clips</button>
+      <button class="clip-date-btn" onclick="setClipDateFilter('today')" data-filter="today">Today</button>
+      <button class="clip-date-btn" onclick="setClipDateFilter('7d')" data-filter="7d">7 Days</button>
+      <button class="clip-date-btn" onclick="setClipDateFilter('30d')" data-filter="30d">30 Days</button>
+      <button class="clip-date-btn" onclick="setClipDateFilter('custom')" data-filter="custom">Date range …</button>
+      <div class="clip-date-range" id="clip-date-range">
+        <input type="date" id="clip-date-from" class="clip-date-input" onchange="applyCustomDateFilter()">
+        <span class="clip-date-range-sep">–</span>
+        <input type="date" id="clip-date-to" class="clip-date-input" onchange="applyCustomDateFilter()">
+      </div>
+    </div>
+
+    <div class="clip-tabs" id="clip-tabs"></div>
+    <div class="clip-body" id="clip-body">
+      <div class="clip-loading" id="clip-modal-loading">
+        <div class="clip-loading-spinner"></div>
+        <span>Loading clips…</span>
+      </div>
+    </div>
+    <div class="clip-reels" id="clip-reels"></div>
+  </div>
+</div>
+
+<!-- ── BOSS CLIPS OVERLAY ── -->
+<div class="boss-clips-backdrop" id="boss-clips-backdrop" onclick="closeBossClipsPanel()"></div>
+<div class="boss-clips-modal" id="boss-clips-modal" role="dialog" aria-modal="true">
+  <div class="boss-clips-inner">
+    <div class="boss-clips-header">
+      <div class="boss-clips-title">
+        <h3 id="boss-clips-heading">Boss Clips</h3>
+        <span class="boss-clips-badge" id="boss-clips-badge">0 Clips</span>
+      </div>
+      <button class="clip-close-btn" onclick="closeBossClipsPanel()" data-tip="Close" data-tip-always="1">✕</button>
+    </div>
+    <div class="boss-clips-body" id="boss-clips-body"></div>
+  </div>
+</div>
+
+<div class="custom-tooltip" id="custom-tooltip"></div>
+
+<!-- ── BINGO EDIT POPUP ── -->
+<div class="bingo-edit-backdrop" id="bingo-edit-backdrop" onclick="closeBingoEdit()"></div>
+<div class="bingo-edit-popup" id="bingo-edit-popup">
+  <div class="bingo-edit-header">Edit bingo field</div>
+  <textarea class="bingo-edit-input" id="bingo-edit-input" rows="3" maxlength="80"
+    placeholder="Enter text…"></textarea>
+  <div class="bingo-edit-actions">
+    <button class="bingo-edit-cancel" onclick="closeBingoEdit()">Cancel</button>
+    <button class="bingo-edit-save" onclick="saveBingoEdit()">✓ Save</button>
+  </div>
+</div>
+
+<!-- ── BOSS LEVEL MODAL ── -->
+<div class="boss-level-backdrop" id="boss-level-backdrop" onclick="closeBossLevelPanel()"></div>
+<div class="boss-level-modal" id="boss-level-modal" role="dialog" aria-modal="true" aria-label="Defeated Bosses by Level">
+  <div class="boss-level-inner">
+    <div class="boss-level-header">
+      <div class="boss-level-title">
+        <span class="boss-level-title-icon">🏆</span>
+        <div>
+          <h2>Defeated Bosses in Order</h2>
+          <span class="boss-level-subtitle" id="boss-level-subtitle">loading…</span>
+        </div>
+      </div>
+      <button class="clip-close-btn" onclick="closeBossLevelPanel()" data-tip="Close" data-tip-always="1">✕</button>
+    </div>
+    <div class="boss-level-table-head">
+      <span class="blh-rank">#</span>
+      <span class="blh-level">Level</span>
+      <span class="blh-name">Boss</span>
+      <span class="blh-deaths">Deaths</span>
+      <span class="blh-clip">Clip</span>
+    </div>
+    <div class="boss-level-list" id="boss-level-list"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
