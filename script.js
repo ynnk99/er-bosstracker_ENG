@@ -8,14 +8,14 @@ const APPS_SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbzropDkFuE59
 const TOOLBOX_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzropDkFuE59VxwddPqwND3zMeGFBfUXjKT3oRug7dwGh0AYy_7U2CjtTnT6bfniB8MTQ/exec";
 
 const ALLOWED_USERS = [
-  "ynnk99",
+  "ynnk99"
 ];
 
 const SPREADSHEET_ID = "1Pl9S0GuodA5n23sBfN0cGgq5HTpedxdGuYYPyVG2GDs";
 
 // ── NG+ ─────────────────────────────────────────────────────────────────
 // Der "lebende" Tab, in dem aktuell gespielt/bearbeitet wird.
-const LIVE_SHEET_NAME = "OBS_OVERLAY";
+const LIVE_SHEET_NAME = "OBS_Overlay";
 // Meta-Tab, der Liste + Zähler der archivierten NG-Durchgänge enthält.
 const NGPLUS_META_SHEET = "_NGPLUS_META";
 
@@ -93,7 +93,7 @@ var timerStartTs  = 0;
 var timerElapsed  = 0;
 var timerVisible  = false;
 var timerInterval = null;
-var timerLabel    = ""; // M3: if set, replaces "Current boss:" in the timer
+var timerLabel    = ""; // M3: wenn befüllt, ersetzt "Aktueller Boss:" im Timer
 
 // ─── BOSS LEVEL PANEL ────────────────────────────────────────────────────────
 var bossLevelData = []; // { boss, level, area, deaths, done, isMain }
@@ -140,11 +140,11 @@ function renderBossLevelPanel() {
   if (subtitle) {
     var firstTry = done.filter(function(b) { return b.deaths === 0; }).length;
     var firstTryPct = done.length > 0 ? Math.round((firstTry / done.length) * 100) : 0;
-    subtitle.textContent = done.length + " bosses defeated · " + firstTry + " First Try (" + firstTryPct + "%)";
+    subtitle.textContent = done.length + " Bosse besiegt · " + firstTry + " First Try (" + firstTryPct + "%)";
   }
 
   if (done.length === 0) {
-    list.innerHTML = '<div class="boss-level-empty">No bosses with a level entry defeated yet.</div>';
+    list.innerHTML = '<div class="boss-level-empty">Noch keine Bosse mit Level-Eintrag besiegt.</div>';
     return;
   }
 
@@ -162,7 +162,7 @@ function renderBossLevelPanel() {
     });
     var bosskillClip = allClips.find(function(c) { return c.category === "Bosskill"; });
     var clipHtml = bosskillClip
-      ? '<a class="boss-level-clip-link" href="' + escAttr(bosskillClip.url) + '" target="_blank" rel="noopener" data-tip="Watch bosskill clip" data-tip-always="1">'
+      ? '<a class="boss-level-clip-link" href="' + escAttr(bosskillClip.url) + '" target="_blank" rel="noopener" data-tip="Bosskill-Clip ansehen" data-tip-always="1">'
         + '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 2H3C1.9 2 1 2.9 1 4v16c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H3V4h18v16zM10 8.5v7l6-3.5-6-3.5z"/></svg>'
         + '</a>'
       : '<span class="boss-level-clip-empty"></span>';
@@ -249,7 +249,7 @@ function toolboxSetElapsed() {
     ).catch(function(e) { console.error("[Toolbox] setElapsed:", e); });
   }
 
-  showToast("⏱ Timer set: " + fmtTime(ms), 2000);
+  showToast("⏱ Timer gesetzt: " + fmtTime(ms), 2000);
 }
 
 function toolboxSetTimerLabel() {
@@ -260,7 +260,7 @@ function toolboxSetTimerLabel() {
   // Lokal sofort anwenden
   timerLabel = label;
   var labelEl = document.getElementById("val-timer-label");
-  if (labelEl) labelEl.textContent = timerLabel ? timerLabel + ":" : "Current boss:";
+  if (labelEl) labelEl.textContent = timerLabel ? timerLabel + ":" : "Aktueller Boss:";
 
   // Sheet: N3 setzen (leer = Inhalt löschen)
   if (TOOLBOX_SCRIPT_URL) {
@@ -271,7 +271,7 @@ function toolboxSetTimerLabel() {
     ).catch(function(e) { console.error("[Toolbox] setTimerLabel:", e); });
   }
 
-  showToast(label ? "\uD83C\uDFF7 Label set: " + label : "\uD83C\uDFF7 Label cleared", 2000);
+  showToast(label ? "\uD83C\uDFF7 Label gesetzt: " + label : "\uD83C\uDFF7 Label geleert", 2000);
 }
 
 document.addEventListener('click', function(e) {
@@ -611,7 +611,7 @@ function escAttr(str) {
 
 function loginWithTwitch() {
   if (!TWITCH_CLIENT_ID || TWITCH_CLIENT_ID === "DEINE_CLIENT_ID_HIER") {
-    showToast("⚠ Twitch client ID not configured!", 4000);
+    showToast("⚠ Twitch Client ID nicht konfiguriert!", 4000);
     return;
   }
   var scope = "";
@@ -665,7 +665,7 @@ function checkAuthOnLoad() {
         currentUser  = null;
         userIsEditor = false;
         updateLoginUI();
-        showToast("\u26a0 Twitch session expired – please log in again.", 6000);
+        showToast("\u26a0 Twitch-Sitzung abgelaufen – bitte neu einloggen.", 6000);
       });
     } catch (e) {
       localStorage.removeItem("twitch_token");
@@ -701,8 +701,8 @@ function fetchTwitchUser(token) {
     checkLiveStatus();
   })
   .catch(function(err) {
-    console.error("[Auth] Error:", err);
-    showToast("⚠ Twitch login failed", 3500);
+    console.error("[Auth] Fehler:", err);
+    showToast("⚠ Twitch-Anmeldung fehlgeschlagen", 3500);
   });
 }
 
@@ -726,12 +726,12 @@ function fetchTwitchClipData(slug) {
           creatorName: data.data[0].creator_name || ""
         });
       } else {
-        console.warn("[Clips] No clip data in Twitch response:", data);
+        console.warn("[Clips] Keine Clip-Daten in Twitch-Antwort:", data);
         resolve(fallback);
       }
     })
     .catch(function(err) {
-      console.warn("[Clips] Twitch API error:", err);
+      console.warn("[Clips] Twitch-API-Fehler:", err);
       resolve(fallback);
     });
   });
@@ -768,7 +768,7 @@ function updateLoginUI() {
       badge.className    = "user-role-badge editor";
       authNotice.classList.remove("visible");
     } else {
-      badge.textContent  = "● Viewer";
+      badge.textContent  = "● Zuschauer";
       badge.className    = "user-role-badge viewer";
       authNotice.classList.add("visible");
     }
@@ -824,7 +824,7 @@ function checkLiveStatus() {
       el.className = "live-badge is-live";
       el.innerHTML = '<a class="live-link" href="https://twitch.tv/' + STREAMER_LOGIN + '" target="_blank" rel="noopener">'
         + '<span class="live-dot"></span>'
-        + 'LIVE &mdash; ' + viewers + ' viewers</a>';
+        + 'LIVE &mdash; ' + viewers + ' Zuschauer</a>';
     } else {
       el.className = "live-badge is-offline";
       el.innerHTML = '<a class="live-link" href="https://twitch.tv/' + STREAMER_LOGIN + '" target="_blank" rel="noopener">'
@@ -847,7 +847,7 @@ function checkLiveStatus() {
 
 function writeToSheet(area, boss, action, value) {
   if (APPS_SCRIPT_URL === "DEINE_APPS_SCRIPT_URL_HIER" || !APPS_SCRIPT_URL) {
-    console.warn("[Sheet] Apps Script URL not configured – change is local only.");
+    console.warn("[Sheet] Apps Script URL nicht konfiguriert – Änderung nur lokal.");
     return;
   }
   var url = APPS_SCRIPT_URL
@@ -868,12 +868,12 @@ function writeToSheet(area, boss, action, value) {
         currentUser  = null;
         userIsEditor = false;
         updateLoginUI();
-        showToast("\u26a0 Session expired – please log in again.", 5000);
+        showToast("\u26a0 Sitzung abgelaufen – bitte neu einloggen.", 5000);
       }
     })
     .catch(function() {
       fetch(url, { method: "GET", mode: "no-cors" })
-        .catch(function(err) { console.error("[Sheet] Write error:", err); });
+        .catch(function(err) { console.error("[Sheet] Schreibfehler:", err); });
     });
 }
 
@@ -899,7 +899,7 @@ function applyLocalBossChange(area, boss, field, value) {
   }
 
   if (field === "done" && value === true && !oldDone && MAIN_BOSSES.has(boss)) {
-    showToast("✔ " + boss + " defeated!");
+    showToast("✔ " + boss + " besiegt!");
   }
 }
 
@@ -938,7 +938,7 @@ function writeFieldDeathsToSheet(type, value) {
     + "&twitchToken=" + encodeURIComponent(getTwitchToken());
   fetch(url, { method: "GET", mode: "cors" })
     .then(function(r) { return r.text(); })
-    .then(function(t) { if (t && t.indexOf("unauthorized") !== -1) { showToast("\u26a0 Session expired – please log in again.", 5000); } })
+    .then(function(t) { if (t && t.indexOf("unauthorized") !== -1) { showToast("\u26a0 Sitzung abgelaufen – bitte neu einloggen.", 5000); } })
     .catch(function() {
       fetch(url, { method: "GET", mode: "no-cors" })
         .catch(function(e) { console.error("[FieldDeaths]", e); });
@@ -1079,11 +1079,11 @@ function updateMenuDisplay() {
   if (menuState.done) {
     doneBtn.className   = "boss-menu-action-btn active";
     doneIcon.textContent = "☑";
-    doneLabel.textContent = "Mark as not defeated";
+    doneLabel.textContent = "Als nicht besiegt markieren";
   } else {
     doneBtn.className   = "boss-menu-action-btn";
     doneIcon.textContent = "☐";
-    doneLabel.textContent = "Mark as defeated";
+    doneLabel.textContent = "Als besiegt markieren";
   }
 
   var pinBtn   = document.getElementById("menu-pin-btn");
@@ -1092,11 +1092,11 @@ function updateMenuDisplay() {
   if (menuState.pinned) {
     pinBtn.className    = "boss-menu-action-btn active-pin";
     pinIcon.textContent = "📍";
-    pinLabel.textContent = "Remove pin";
+    pinLabel.textContent = "Anpinnung entfernen";
   } else {
     pinBtn.className    = "boss-menu-action-btn";
     pinIcon.textContent = "📌";
-    pinLabel.textContent = "Pin";
+    pinLabel.textContent = "Anpinnen";
   }
 }
 
@@ -1175,7 +1175,7 @@ function openQuickClipMenu(e, bossName, areaName) {
   quickClipArea = areaName || "";
   document.getElementById("quick-clip-boss-name").textContent = bossName;
   document.getElementById("quick-clip-url").value             = "";
-  document.getElementById("quick-clip-cat").value             = "General";
+  document.getElementById("quick-clip-cat").value             = "Allgemein";
   document.getElementById("quick-clip-feedback").textContent  = "";
   document.getElementById("quick-clip-feedback").className    = "quick-clip-feedback";
 
@@ -1222,7 +1222,7 @@ function submitQuickClip() {
   feedEl.className = "quick-clip-feedback";
 
   if (!url) {
-    feedEl.textContent = "⚠ Please enter a Twitch link.";
+    feedEl.textContent = "⚠ Bitte einen Twitch-Link eingeben.";
     feedEl.classList.add("error");
     urlEl.focus();
     return;
@@ -1230,7 +1230,7 @@ function submitQuickClip() {
 
   var parsed = parseTwitchClip(url);
   if (!parsed || parsed.type === "link") {
-    feedEl.textContent = "⚠ Not a valid Twitch clip or VOD link.";
+    feedEl.textContent = "⚠ Kein gültiger Twitch-Clip- oder VOD-Link.";
     feedEl.classList.add("error");
     urlEl.focus();
     return;
@@ -1238,12 +1238,12 @@ function submitQuickClip() {
 
   var isDupe = clipsData.some(function(c) { return c.url.trim() === url; });
   if (isDupe) {
-    feedEl.textContent = "⚠ Clip is already in the collection.";
+    feedEl.textContent = "⚠ Clip bereits in der Sammlung vorhanden.";
     feedEl.classList.add("error");
     return;
   }
 
-  feedEl.textContent = "⏳ Fetching clip date…";
+  feedEl.textContent = "⏳ Clip-Datum wird abgerufen…";
 
   fetchTwitchClipData(parsed.slug).then(function(clipData) {
     var newClip = { url: url, category: category, title: "", boss: boss, area: area, addedAt: clipData.addedAt, creatorName: clipData.creatorName };
@@ -1257,7 +1257,7 @@ function submitQuickClip() {
 
     renderAreas(currentAreas);
 
-    feedEl.textContent = "✔ Clip saved!";
+    feedEl.textContent = "✔ Clip gespeichert!";
     feedEl.classList.add("success");
 
     writeClipToSheet(url, category, "", boss, clipData.addedAt, clipData.creatorName, area);
@@ -1333,7 +1333,7 @@ function updateTimerDisplay() {
     : timerElapsed;
   document.getElementById("val-timer").textContent = fmtTime(elapsed);
   var labelEl = document.getElementById("val-timer-label");
-  if (labelEl) labelEl.textContent = timerLabel ? timerLabel + ":" : "Current boss:";
+  if (labelEl) labelEl.textContent = timerLabel ? timerLabel + ":" : "Aktueller Boss:";
 }
 
 function startTimerTick() {
@@ -1444,7 +1444,7 @@ function applySearch() {
   });
 
   if (query.length > 0) {
-    countEl.textContent = totalMatches + " results";
+    countEl.textContent = totalMatches + " Treffer";
     countEl.classList.add("visible");
   } else {
     countEl.classList.remove("visible");
@@ -1484,15 +1484,15 @@ function renderRanking(allBosses) {
   if (subtitle) {
     var doneBossCount = allBosses.filter(function(b) { return b.done; }).length;
     subtitle.textContent = top.length > 0
-      ? "— Top " + top.length + " of " + doneBossCount + " completed bosses"
-      : "— You haven't died yet - yet.";
+      ? "— Top " + top.length + " von " + doneBossCount + " erledigten Bossen"
+      : "— Du bist noch nicht gestorben - noch.";
   }
 
   var listEl = document.getElementById("ranking-list");
   if (!listEl) return;
 
   if (top.length === 0) {
-    listEl.innerHTML = '<div class="ranking-empty">You haven\'t died yet - yet.</div>';
+    listEl.innerHTML = '<div class="ranking-empty">Du bist noch nicht gestorben - noch.</div>';
     return;
   }
 
@@ -1550,7 +1550,7 @@ function renderChart(allBosses) {
   var dayCount  = dates.length;
   var bossCount = allBosses.filter(function(b){ return b.done && b.date; }).length;
   document.getElementById("chart-subtitle").textContent =
-  "— " + dayCount + (dayCount === 1 ? " day, " : " days, ") + bossCount + (bossCount === 1 ? " boss defeated" : " bosses defeated");
+  "— " + dayCount + (dayCount === 1 ? " Tag, " : " Tage, ") + bossCount + (bossCount === 1 ? " Boss erledigt" : " Bosse erledigt");
 
   var counts  = dates.map(function(d) { return byDate[d].length; });
   var bossList = dates.map(function(d) { return byDate[d]; });
@@ -1564,7 +1564,7 @@ function renderChart(allBosses) {
     data: {
       labels: dates,
       datasets: [{
-        label: "Bosses defeated",
+        label: "Bosse besiegt",
         data: counts,
         backgroundColor: "rgba(201, 164, 74, 0.35)",
         borderColor: "rgba(201, 164, 74, 0.85)",
@@ -1590,7 +1590,7 @@ function renderChart(allBosses) {
             title: function(items) { return items[0].label; },
             label: function(item) {
               var list = bossList[item.dataIndex];
-              return ["† " + list.length + " boss" + (list.length > 1 ? "es" : "") + ":"]
+              return ["† " + list.length + " Boss" + (list.length > 1 ? "e" : "") + ":"]
                 .concat(list.map(function(n){ return "  · " + n; }));
             }
           }
@@ -1781,7 +1781,7 @@ function toggleClipViewMode() {
   if (clipViewMode === 'reels') {
     toggleBtn.classList.add("active");
     toggleBtn.querySelector(".clip-view-toggle-icon").textContent = "▤";
-    toggleBtn.setAttribute("data-tip", "Grid view");
+    toggleBtn.setAttribute("data-tip", "Raster-Ansicht");
     tabsEl.style.display   = "none";
     filterEl.style.display = "none";
     bodyEl.style.display   = "none";
@@ -1790,7 +1790,7 @@ function toggleClipViewMode() {
   } else {
     toggleBtn.classList.remove("active");
     toggleBtn.querySelector(".clip-view-toggle-icon").textContent = "▤";
-    toggleBtn.setAttribute("data-tip", "Reel mode");
+    toggleBtn.setAttribute("data-tip", "Reel-Modus");
     tabsEl.style.display   = "";
     filterEl.style.display = "";
     bodyEl.style.display   = "";
@@ -1808,7 +1808,7 @@ function renderClipModal() {
   if (clipsData.length === 0) {
     if (loadEl) loadEl.style.display = "flex";
     tabsEl.innerHTML = "";
-    bodyEl.innerHTML = '<div class="clip-empty"><span class="clip-empty-icon">🎬</span><span>No clips yet.</span></div>';
+    bodyEl.innerHTML = '<div class="clip-empty"><span class="clip-empty-icon">🎬</span><span>Noch keine Clips vorhanden.</span></div>';
     return;
   }
 
@@ -1818,8 +1818,8 @@ function renderClipModal() {
 
   if (filtered.length === 0) {
     tabsEl.innerHTML = "";
-    var filterLabel = { "today": "today", "7d": "in the last 7 days", "30d": "in the last 30 days", "custom": "in this date range" }[clipDateFilter] || "";
-    bodyEl.innerHTML = '<div class="clip-empty"><span class="clip-empty-icon">📅</span><span>No clips ' + filterLabel + '.</span></div>';
+    var filterLabel = { "today": "heute", "7d": "in den letzten 7 Tagen", "30d": "in den letzten 30 Tagen", "custom": "in diesem Zeitraum" }[clipDateFilter] || "";
+    bodyEl.innerHTML = '<div class="clip-empty"><span class="clip-empty-icon">📅</span><span>Keine Clips ' + filterLabel + ' vorhanden.</span></div>';
     return;
   }
 
@@ -1878,13 +1878,13 @@ function renderClipReelSlide(clip, index) {
   var mediaHtml = embedUrl
     ? '<div class="clip-reel-media" data-embed-url="' + escAttr(embedUrl) + '" data-clip-index="' + index + '" data-muted="' + (reelSoundPreferred ? "0" : "1") + '">'
       + '<div class="clip-reel-media-inner"></div>'
-      + '<button class="clip-reel-mute" onclick="toggleReelMute(this)" data-tip="Sound on/off" data-tip-always="1">'
+      + '<button class="clip-reel-mute" onclick="toggleReelMute(this)" data-tip="Ton ein/aus" data-tip-always="1">'
       + '<span class="clip-reel-mute-icon">' + (reelSoundPreferred ? "🔊" : "🔇") + '</span></button>'
       + '</div>'
     : '<div class="clip-reel-media">'
       + '<div class="clip-placeholder" onclick="window.open(\'' + escAttr(linkUrl) + '\',\'_blank\')">'
       + '<span class="clip-placeholder-icon">▶️</span>'
-      + '<span class="clip-placeholder-text">Open clip</span>'
+      + '<span class="clip-placeholder-text">Clip öffnen</span>'
       + '</div></div>';
 
   return '<div class="clip-reel-slide" data-reel-index="' + index + '">'
@@ -1892,12 +1892,12 @@ function renderClipReelSlide(clip, index) {
     + '<div class="clip-reel-info">'
     + (clip.title ? '<p class="clip-reel-title">' + escHtml(clip.title) + '</p>' : '')
     + '<div class="clip-reel-meta">'
-    + '<span class="clip-reel-category">' + escHtml(clip.category || "Other") + '</span>'
+    + '<span class="clip-reel-category">' + escHtml(clip.category || "Sonstige") + '</span>'
     + (clip.boss ? '<span class="clip-reel-boss">🎮 ' + escHtml(clip.boss) + '</span>' : '')
     + (clip.creatorName ? '<span class="clip-reel-creator">✂ ' + escHtml(clip.creatorName) + '</span>' : '')
     + (clip.addedAt ? '<span class="clip-reel-date">📅 ' + formatClipDate(clip.addedAt) + '</span>' : '')
     + '</div></div>'
-    + '<a href="' + escAttr(linkUrl) + '" target="_blank" rel="noopener" class="clip-reel-open" data-tip="Open on Twitch" data-tip-always="1">'
+    + '<a href="' + escAttr(linkUrl) + '" target="_blank" rel="noopener" class="clip-reel-open" data-tip="Auf Twitch öffnen" data-tip-always="1">'
     + '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"/></svg>'
     + '</a></div>';
 }
@@ -2025,7 +2025,7 @@ function renderClipCard(clip, index) {
     embedHtml = '<div class="clip-embed-wrapper">'
       + '<div class="clip-placeholder" onclick="window.open(\'' + escAttr(linkUrl) + '\',\'_blank\')">'
       + '<span class="clip-placeholder-icon">▶️</span>'
-      + '<span class="clip-placeholder-text">Open clip</span>'
+      + '<span class="clip-placeholder-text">Clip öffnen</span>'
       + '</div></div>';
   }
 
@@ -2055,7 +2055,7 @@ function renderClipCard(clip, index) {
     + (clip.creatorName ? '<span class="clip-creator">✂ ' + escHtml(clip.creatorName) + '</span>' : '')
     + '<a href="' + escAttr(linkUrl) + '" target="_blank" rel="noopener" class="clip-open-link">'
     + '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"/></svg>'
-    + 'On Twitch</a>'
+    + 'Auf Twitch</a>'
     + '</div>'
     + '</div>'
     + bossEditHtml
@@ -2108,14 +2108,14 @@ function submitNewClip() {
 
   feedEl.className = "add-clip-feedback";
   if (!url) {
-    feedEl.textContent = "⚠ Please enter a Twitch link.";
+    feedEl.textContent = "⚠ Bitte einen Twitch-Link eingeben.";
     feedEl.classList.add("error");
     urlEl.focus();
     return;
   }
   var parsed = parseTwitchClip(url);
   if (!parsed || parsed.type === "link") {
-    feedEl.textContent = "⚠ No valid Twitch clip or VOD link detected.";
+    feedEl.textContent = "⚠ Kein gültiger Twitch-Clip- oder VOD-Link erkannt.";
     feedEl.classList.add("error");
     urlEl.focus();
     return;
@@ -2123,12 +2123,12 @@ function submitNewClip() {
 
   var isDupe = clipsData.some(function(c) { return c.url.trim() === url; });
   if (isDupe) {
-    feedEl.textContent = "⚠ This clip is already in the collection.";
+    feedEl.textContent = "⚠ Dieser Clip ist bereits in der Sammlung.";
     feedEl.classList.add("error");
     return;
   }
 
-  feedEl.textContent = "⏳ Fetching clip date…";
+  feedEl.textContent = "⏳ Clip-Datum wird abgerufen…";
 
   fetchTwitchClipData(parsed.slug).then(function(clipData) {
     var newClip = { url: url, category: category, title: title, boss: boss, addedAt: clipData.addedAt, creatorName: clipData.creatorName };
@@ -2143,10 +2143,10 @@ function submitNewClip() {
     activeCategory = category;
     renderClipModal();
 
-    feedEl.textContent = "✔ Clip saved – will be added to the sheet shortly.";
+    feedEl.textContent = "✔ Clip gespeichert – wird gleich im Sheet hinterlegt.";
     urlEl.value   = "";
     titleEl.value = "";
-    catEl.value   = "General";
+    catEl.value   = "Allgemein";
     if (bossEl) bossEl.value = "";
 
     setTimeout(function() {
@@ -2165,7 +2165,7 @@ function submitNewClip() {
 
 function writeClipToSheet(url, category, title, boss, addedAt, creatorName, area) {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "DEINE_APPS_SCRIPT_URL_HIER") {
-    console.warn("[Clips] Apps Script URL not configured – clip is local only.");
+    console.warn("[Clips] Apps Script URL nicht konfiguriert – Clip nur lokal.");
     return;
   }
   var bossEncoded = (area && area.length > 0) ? area + "|" + boss : boss;
@@ -2179,7 +2179,7 @@ function writeClipToSheet(url, category, title, boss, addedAt, creatorName, area
     + "&creatorName=" + encodeURIComponent(creatorName || "")
     + "&twitchToken="  + encodeURIComponent(getTwitchToken());
   fetch(reqUrl, { method: "GET", mode: "no-cors" })
-    .catch(function(err) { console.error("[Clips] Write error:", err); });
+    .catch(function(err) { console.error("[Clips] Schreibfehler:", err); });
 }
 
 function getNowISO() {
@@ -2208,7 +2208,7 @@ function rebuildClipsByBoss() {
 }
 
 function getBossOptions(selectedBoss) {
-  var opts = '<option value="">– No boss –</option>';
+  var opts = '<option value="">– Kein Boss –</option>';
   Array.from(MAIN_BOSSES).sort().forEach(function(b) {
     opts += '<option value="' + escAttr(b) + '"' + (b === selectedBoss ? ' selected' : '') + '>' + escHtml(b) + '</option>';
   });
@@ -2282,7 +2282,7 @@ function updateClipBoss(clipUrl, newBoss) {
   renderFromCache();
 
   writeBossTagToSheet(clipUrl, newBoss);
-  showToast(newBoss ? "🎮 Boss set: " + newBoss : "Boss assignment removed", 2500);
+  showToast(newBoss ? "🎮 Boss gesetzt: " + newBoss : "Boss-Zuordnung entfernt", 2500);
 }
 
 function writeBossTagToSheet(clipUrl, boss) {
@@ -2293,7 +2293,7 @@ function writeBossTagToSheet(clipUrl, boss) {
     + "&boss="  + encodeURIComponent(boss || "")
     + "&twitchToken=" + encodeURIComponent(getTwitchToken());
   fetch(reqUrl, { method: "GET", mode: "no-cors" })
-    .catch(function(err) { console.error("[Clips] BossTag write error:", err); });
+    .catch(function(err) { console.error("[Clips] BossTag Schreibfehler:", err); });
 }
 
 function updateAddClipButton() {
@@ -2322,7 +2322,7 @@ function loadClips() {
       rows.forEach(function(row) {
         if (!row || !row.c) return;
         var url         = row.c[0] && row.c[0].v ? String(row.c[0].v).trim() : "";
-        var category    = row.c[1] && row.c[1].v ? String(row.c[1].v).trim() : "Other";
+        var category    = row.c[1] && row.c[1].v ? String(row.c[1].v).trim() : "Sonstige";
         var title       = row.c[2] && row.c[2].v ? String(row.c[2].v).trim() : "";
         var bossRaw     = row.c[3] && row.c[3].v ? String(row.c[3].v).trim() : "";
         var addedAt     = row.c[4] && row.c[4].v ? String(row.c[4].v).trim() : "";
@@ -2354,7 +2354,7 @@ function loadClips() {
         }
       }
     })
-    .catch(function(err) { console.error("[Clips] Error:", err); });
+    .catch(function(err) { console.error("[Clips] Fehler:", err); });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2366,14 +2366,14 @@ function setRefreshState(state) {
   var text = document.getElementById("refresh-text");
   if (state === "loading") {
     dot.className = "refresh-dot loading";
-    text.textContent = "Loading…";
+    text.textContent = "Lade…";
   } else if (state === "ok") {
     dot.className = "refresh-dot";
     var now = new Date();
-    text.textContent = "Last updated: " + now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    text.textContent = "Zuletzt: " + now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   } else {
     dot.style.background = "#c44a3a";
-    text.textContent = "Connection error";
+    text.textContent = "Verbindungsfehler";
   }
 }
 
@@ -2390,7 +2390,7 @@ function loadData() {
       document.getElementById("areas-grid").style.display      = "grid";
     })
     .catch(function(err) {
-      console.error("[Main] Error loading:", err);
+      console.error("[Main] Fehler beim Laden:", err);
       setRefreshState("error");
     });
 }
@@ -2452,7 +2452,7 @@ function processData(rows) {
     var area = r.c[0] && r.c[0].v ? r.c[0].v.trim() : "";
     var boss = r.c[1] && r.c[1].v ? r.c[1].v.trim() : "";
     if (!area || !boss) return;
-    if (area === "Area" && boss === "Boss") return;
+    if (area === "Gebiet" && boss === "Boss") return;
     if (boss === "SHADOW OF THE ERDTREE DLC") return;
 
     var isBaseGame = separatorIndex === -1 || index < separatorIndex;
@@ -2492,7 +2492,7 @@ function processData(rows) {
     if (!(key in previousBossStates)) {
       previousBossStates[key] = done;
     } else if (!previousBossStates[key] && done) {
-      if (MAIN_BOSSES.has(boss)) showToast("✔ " + boss + " defeated!");
+      if (MAIN_BOSSES.has(boss)) showToast("✔ " + boss + " besiegt!");
     }
     previousBossStates[key] = done;
 
@@ -2622,7 +2622,7 @@ function renderAreas(areas) {
       }
       card.innerHTML = '<span class="pinned-deaths">📌 ' + (b.deaths > 0 ? b.deaths : "–") + '</span>'
         + '<span class="pinned-name' + (isMain ? " main-boss" : "") + '">' + escHtml(b.boss) + '</span>'
-        + (isAuthorized() ? '<span class="boss-edit-hint" data-tip="Edit" data-tip-always="1">✏</span>' : '');
+        + (isAuthorized() ? '<span class="boss-edit-hint" data-tip="Bearbeiten" data-tip-always="1">✏</span>' : '');
       pinnedList.appendChild(card);
     });
   } else {
@@ -2703,7 +2703,7 @@ function renderBossRow(b, areaName) {
   var bossClipKey   = areaName + "|" + b.boss;
   var bossClipCount = ((clipsByBoss[bossClipKey] || []).length) + ((clipsByBoss[b.boss] || []).length);
   var clipBadge = bossClipCount > 0
-    ? '<span class="boss-clip-badge" onclick="openBossClipsPanel(\'' + escAttr(b.boss) + '\',\'' + escAttr(areaName) + '\',event)" data-tip="View ' + bossClipCount + ' Clip' + (bossClipCount > 1 ? 's' : '') + '" data-tip-always="1">🎬 ' + bossClipCount + '</span>'
+    ? '<span class="boss-clip-badge" onclick="openBossClipsPanel(\'' + escAttr(b.boss) + '\',\'' + escAttr(areaName) + '\',event)" data-tip="' + bossClipCount + ' Clip' + (bossClipCount > 1 ? 's' : '') + ' ansehen" data-tip-always="1">🎬 ' + bossClipCount + '</span>'
     : '';
 
   return '<div class="boss-row' + (b.done ? " done" : "") + editClass + '"'
@@ -2714,7 +2714,7 @@ function renderBossRow(b, areaName) {
     + '<span class="boss-name' + (isMain ? " main" : "") + '" data-tip="' + escAttr(b.boss) + '">' + escHtml(b.boss) + '</span>'
     + clipBadge
     + '<span class="boss-check">✓</span>'
-    + (isAuthorized() ? '<span class="boss-edit-hint" data-tip="Edit" data-tip-always="1">✏</span>' : '')
+    + (isAuthorized() ? '<span class="boss-edit-hint" data-tip="Bearbeiten" data-tip-always="1">✏</span>' : '')
     + '</div>';
 }
 
@@ -2796,7 +2796,7 @@ function loadBingo() {
         renderBingo();
       }
     })
-    .catch(function(e) { console.error("[Bingo] Text error:", e); });
+    .catch(function(e) { console.error("[Bingo] Text-Fehler:", e); });
 
   fetch(getBingoStateUrl() + "&nocache=" + Date.now())
     .then(function(r) { return r.text(); })
@@ -2819,7 +2819,7 @@ function loadBingo() {
         renderBingo();
       }
     })
-    .catch(function(e) { console.error("[Bingo] State error:", e); });
+    .catch(function(e) { console.error("[Bingo] State-Fehler:", e); });
 }
 
 function getBingoWinLines() {
@@ -2851,7 +2851,7 @@ function renderBingo() {
   if (!bingoCells.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;'
       + 'font-family:\'Crimson Pro\',serif;font-style:italic;color:var(--parchment-dim);opacity:0.5;">'
-      + 'Loading bingo fields…</div>';
+      + 'Bingo-Felder werden geladen…</div>';
     return;
   }
 
@@ -2893,8 +2893,8 @@ function renderBingo() {
 
   if (subtitle) {
     subtitle.textContent = winLines.length > 0
-      ? "— ✨ BINGO! " + winLines.length + (winLines.length === 1 ? " line" : " lines") + " completed"
-      : "— " + totalChecked + " / 25 fields marked";
+      ? "— ✨ BINGO! " + winLines.length + (winLines.length === 1 ? " Linie" : " Linien") + " abgeschlossen"
+      : "— " + totalChecked + " / 25 Felder markiert";
   }
   if (banner) banner.style.display = winLines.length > 0 ? "block" : "none";
 }
@@ -2918,7 +2918,7 @@ function writeBingoCellToSheet(row, col, value) {
     + "&value=" + encodeURIComponent(value ? "TRUE" : "FALSE")
     + "&twitchToken=" + encodeURIComponent(getTwitchToken()),
     { method: "GET", mode: "no-cors" }
-  ).catch(function(e) { console.error("[Bingo] Write error:", e); });
+  ).catch(function(e) { console.error("[Bingo] Schreibfehler:", e); });
 }
 
 // ──────────── BINGO EDIT ────────────
@@ -2962,7 +2962,7 @@ function saveBingoEdit() {
   prevBingoTextSnap = JSON.stringify(bingoCells);
   closeBingoEdit();
   renderBingo();
-  showToast("✏ Bingo field saved", 2000);
+  showToast("✏ Bingo-Feld gespeichert", 2000);
   writeBingoTextToSheet(row, col, newText);
 }
 
@@ -2975,7 +2975,7 @@ function writeBingoTextToSheet(row, col, text) {
     + "&value=" + encodeURIComponent(text)
     + "&twitchToken=" + encodeURIComponent(getTwitchToken()),
     { method: "GET", mode: "no-cors" }
-  ).catch(function(e) { console.error("[Bingo] Text write error:", e); });
+  ).catch(function(e) { console.error("[Bingo] Text-Schreibfehler:", e); });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -3040,12 +3040,12 @@ function renderRunSelector() {
   document.getElementById("run-selector").classList.toggle("archive-active", viewingArchive);
 
   var html = '<div class="run-option' + (!viewingArchive ? ' active' : '') + '" onclick="switchRun(\'' + LIVE_SHEET_NAME + '\', \'' + escAttr(currentLiveLabel) + '\', true)">'
-    + '<span class="run-dot live"></span> ' + escHtml(currentLiveLabel) + ' <span class="run-tag">current</span></div>';
+    + '<span class="run-dot live"></span> ' + escHtml(currentLiveLabel) + ' <span class="run-tag">aktuell</span></div>';
 
   ngRuns.slice().reverse().forEach(function(run) {
     var isActive = viewingArchive && run.sheetName === currentRunSheet;
     html += '<div class="run-option' + (isActive ? ' active' : '') + '" onclick="switchRun(\'' + escAttr(run.sheetName) + '\', \'' + escAttr(run.label) + '\', false)">'
-      + '<span class="run-dot archive"></span> ' + escHtml(run.label) + ' <span class="run-tag">Archive</span></div>';
+      + '<span class="run-dot archive"></span> ' + escHtml(run.label) + ' <span class="run-tag">Archiv</span></div>';
   });
   list.innerHTML = html;
 
@@ -3080,7 +3080,7 @@ function switchRun(sheetName, label, isLive) {
   if (banner) {
     banner.classList.toggle("visible", viewingArchive);
     document.getElementById("archive-banner-text").textContent =
-      "You are viewing an archived run (" + label + ") — read-only.";
+      "Du betrachtest einen archivierten Durchgang (" + label + ") — nur lesbar.";
   }
 
   document.getElementById("loading-overlay").style.display = "flex";
@@ -3092,20 +3092,20 @@ function switchRun(sheetName, label, isLive) {
   loadData();
   loadClips();
   loadBingo();
-  showToast((viewingArchive ? "📜 Archive opened: " : "🔴 Back to current run: ") + label, 2500);
+  showToast((viewingArchive ? "📜 Archiv geöffnet: " : "🔴 Zurück zum aktuellen Run: ") + label, 2500);
 }
 
 function startNGPlusRun() {
   if (!isAuthorized()) return;
-  var confirmMsg = "Really start NG+?\n\n"
-    + "The current run (" + currentLiveLabel + ") will be fully saved as an archive "
-    + "(including all bosses, clips, and bingo).\n"
-    + "Afterwards, ALL bosses, deaths, field deaths, the timer, and the bingo board will be "
-    + "reset on the live page for a new run: " + (ngRuns.length === 0 ? "NG+1" : "NG+" + (ngRuns.length + 1)) + ".\n\n"
-    + "This cannot be undone. Continue?";
+  var confirmMsg = "NG+ wirklich starten?\n\n"
+    + "Der aktuelle Durchgang (" + currentLiveLabel + ") wird vollständig als Archiv gespeichert "
+    + "(inkl. aller Bosse, Clips und Bingo).\n"
+    + "Danach werden auf der Live-Seite ALLE Bosse, Tode, Feldtode, der Timer und das Bingo-Board "
+    + "zurückgesetzt für einen neuen Durchgang: " + (ngRuns.length === 0 ? "NG+1" : "NG+" + (ngRuns.length + 1)) + ".\n\n"
+    + "Das kann nicht rückgängig gemacht werden. Fortfahren?";
   if (!window.confirm(confirmMsg)) return;
 
-  showToast("⏳ Starting NG+ – please wait…", 4000);
+  showToast("⏳ NG+ wird gestartet – bitte kurz warten…", 4000);
 
   fetch(APPS_SCRIPT_URL
     + "?action=startNGPlus"
@@ -3115,7 +3115,7 @@ function startNGPlusRun() {
   .then(function(r) { return r.text(); })
   .then(function(t) {
     if (t && t.indexOf("OK:") === 0) {
-      showToast("✔ NG+ started! The new run begins now.", 4000);
+      showToast("✔ NG+ gestartet! Der neue Durchgang beginnt jetzt.", 4000);
       setTimeout(function() {
         loadNGRuns();
         loadData();
@@ -3125,18 +3125,18 @@ function startNGPlusRun() {
       return;
     }
     if (t && t.indexOf("unauthorized") !== -1) {
-      showToast("⚠ No permission for NG+ (admins only).", 5000);
+      showToast("⚠ Keine Berechtigung für NG+ (nur Admins).", 5000);
       return;
     }
     // Jede andere Antwort (z.B. "ERROR:unknown action" bei nicht neu deploytem
     // Apps Script, oder ein anderer serverseitiger Fehler) ist KEIN Erfolg –
     // hier wurde weder archiviert noch zurückgesetzt.
-    console.error("[NG+] Unexpected server response:", t);
-    showToast("⚠ NG+ failed: " + (t || "no response from server") + " — please check the Apps Script deployment.", 7000);
+    console.error("[NG+] Unerwartete Server-Antwort:", t);
+    showToast("⚠ NG+ fehlgeschlagen: " + (t || "keine Antwort vom Server") + " — bitte Apps-Script-Deployment prüfen.", 7000);
   })
   .catch(function(err) {
-    console.error("[NG+] Error:", err);
-    showToast("⚠ NG+ could not be started (connection error).", 5000);
+    console.error("[NG+] Fehler:", err);
+    showToast("⚠ NG+ konnte nicht gestartet werden (Verbindungsfehler).", 5000);
   });
 }
 
@@ -3144,6 +3144,239 @@ document.addEventListener('click', function(e) {
   var sel = document.getElementById('run-selector');
   if (sel && !sel.contains(e.target)) sel.classList.remove('open');
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RUN-VERGLEICH (NG / NG+1 / NG+2 … im direkten Vergleich)
+// ═══════════════════════════════════════════════════════════════════════════
+
+var runCompareData    = null;  // { runs: [{label, sheetName, isLive, data}], canonicalBosses: [...] }
+var runCompareLoading = false;
+
+function openRunCompare() {
+  document.getElementById("run-compare-backdrop").classList.add("open");
+  document.getElementById("run-compare-modal").classList.add("open");
+  document.body.style.overflow = "hidden";
+  loadRunCompareData();
+}
+
+function closeRunCompare() {
+  document.getElementById("run-compare-backdrop").classList.remove("open");
+  document.getElementById("run-compare-modal").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+// Parst die Rohzeilen eines Run-Tabs (gleiche Spaltenbelegung wie processData)
+// in eine kompakte, für den Vergleich nutzbare Struktur.
+function parseSheetRowsForCompare(rows) {
+  // K/L-Spalten (0-basiert 10/11): Feldtode (K) & Gesamt-Tode-Zähler (L), je einmal
+  // für Base Game (Zeile 1) und einmal für DLC (Zeile 168) hinterlegt.
+  var fdBase = rows[1]   && rows[1].c[10] ? (Number(rows[1].c[10].v)   || 0) : 0;
+  var fdDlc  = rows[168] && rows[168].c[10] ? (Number(rows[168].c[10].v) || 0) : 0;
+  var kBase  = rows[1]   && rows[1].c[11] ? (Number(rows[1].c[11].v)   || 0) : 0;
+  var kDlc   = rows[168] && rows[168].c[11] ? (Number(rows[168].c[11].v) || 0) : 0;
+
+  var separatorIndex = -1;
+  for (var si = 0; si < rows.length; si++) {
+    if (rows[si] && rows[si].c[1] && rows[si].c[1].v && String(rows[si].c[1].v).trim() === "SHADOW OF THE ERDTREE DLC") {
+      separatorIndex = si;
+      break;
+    }
+  }
+
+  var bosses  = [];
+  var bossMap = {};
+  var doneCount = 0;
+
+  rows.forEach(function(r, index) {
+    if (!r || !r.c) return;
+    var area = r.c[0] && r.c[0].v ? String(r.c[0].v).trim() : "";
+    var boss = r.c[1] && r.c[1].v ? String(r.c[1].v).trim() : "";
+    if (!area || !boss) return;
+    if (area === "Gebiet" && boss === "Boss") return;
+    if (boss === "SHADOW OF THE ERDTREE DLC") return;
+
+    var isDLC  = separatorIndex !== -1 && index > separatorIndex;
+    var done   = isTrue(r.c[2] ? r.c[2].v : false);
+    var deaths = Number(r.c[4] ? r.c[4].v : 0) || 0;
+
+    var entry = { area: area, boss: boss, done: done, deaths: deaths, isDLC: isDLC };
+    bossMap[area + "|" + boss] = entry;
+    bosses.push(entry);
+    if (done) doneCount++;
+  });
+
+  var bossDeathsSum   = bosses.reduce(function(s, b) { return s + b.deaths; }, 0);
+  var fieldDeathsTotal = fdBase + fdDlc;
+  var totalDeaths      = (kBase + kDlc) || (bossDeathsSum + fieldDeathsTotal);
+
+  return {
+    bosses: bosses,
+    bossMap: bossMap,
+    doneCount: doneCount,
+    totalCount: bosses.length,
+    bossDeathsSum: bossDeathsSum,
+    fieldDeathsTotal: fieldDeathsTotal,
+    totalDeaths: totalDeaths
+  };
+}
+
+function loadRunCompareData() {
+  if (runCompareLoading) return;
+  runCompareLoading = true;
+
+  var subtitle = document.getElementById("run-compare-subtitle");
+  if (subtitle) subtitle.textContent = "wird geladen…";
+  var body = document.getElementById("run-compare-body");
+  if (body) body.innerHTML = '<div class="run-compare-loading">⏳ Lade Durchgänge…</div>';
+
+  var runsList = ngRuns.map(function(r) {
+    return { label: r.label, sheetName: r.sheetName, isLive: false };
+  });
+  runsList.push({ label: currentLiveLabel, sheetName: LIVE_SHEET_NAME, isLive: true });
+
+  var fetches = runsList.map(function(run) {
+    return fetch(gvizUrl(run.sheetName) + "&nocache=" + Date.now())
+      .then(function(r) { return r.text(); })
+      .then(function(text) {
+        var json = JSON.parse(text.substring(47).slice(0, -2));
+        var rows = (json.table && json.table.rows) ? json.table.rows : [];
+        run.data = parseSheetRowsForCompare(rows);
+        return run;
+      })
+      .catch(function(e) {
+        console.error("[RunCompare] Fehler beim Laden von " + run.sheetName + ":", e);
+        run.data = null;
+        return run;
+      });
+  });
+
+  Promise.all(fetches).then(function(runs) {
+    runCompareLoading = false;
+
+    // Kanonische Boss-Liste (Reihenfolge + Gebiete) bevorzugt vom aktuellen
+    // Live-Durchgang übernehmen, da dieser der aktuellen Tracker-Struktur entspricht.
+    var canonical = null;
+    var liveRun = runs.find(function(r) { return r.isLive; });
+    if (liveRun && liveRun.data && liveRun.data.bosses.length > 0) {
+      canonical = liveRun.data.bosses.slice();
+    } else {
+      for (var i = 0; i < runs.length; i++) {
+        if (runs[i].data && runs[i].data.bosses.length > 0) { canonical = runs[i].data.bosses.slice(); break; }
+      }
+    }
+    canonical = canonical || [];
+
+    // Bosse, die nur in einem Archiv-Durchgang vorkommen (z.B. weil die
+    // Tracker-Liste sich zwischenzeitlich geändert hat), hinten anhängen.
+    var seen = {};
+    canonical.forEach(function(b) { seen[b.area + "|" + b.boss] = true; });
+    runs.forEach(function(run) {
+      if (!run.data) return;
+      run.data.bosses.forEach(function(b) {
+        var key = b.area + "|" + b.boss;
+        if (!seen[key]) { seen[key] = true; canonical.push(b); }
+      });
+    });
+
+    runCompareData = { runs: runs, canonicalBosses: canonical };
+
+    var totalDefeated = runs.reduce(function(sum, run) {
+      return sum + (run.data ? run.data.doneCount : 0);
+    }, 0);
+
+    var subtitleEl = document.getElementById("run-compare-subtitle");
+    if (subtitleEl) subtitleEl.textContent = runs.length + (runs.length === 1 ? " Durchgang · " : " Durchgänge · ") + totalDefeated + " Bosse besiegt";
+
+    renderRunCompareTable();
+  });
+}
+
+function renderRunCompareTable() {
+  var body = document.getElementById("run-compare-body");
+  if (!body || !runCompareData) return;
+
+  var runs   = runCompareData.runs;
+  var bosses = runCompareData.canonicalBosses;
+
+  if (runs.length === 0) {
+    body.innerHTML = '<div class="run-compare-loading">Keine Durchgänge gefunden.</div>';
+    return;
+  }
+  if (bosses.length === 0) {
+    body.innerHTML = '<div class="run-compare-loading">Keine Boss-Daten gefunden.</div>';
+    return;
+  }
+
+  var colCount = runs.length + 1;
+  var html = '<table class="run-compare-table">';
+
+  html += '<thead><tr><th class="rc-sticky rc-head-boss">Boss</th>';
+  runs.forEach(function(run) {
+    html += '<th class="rc-run-head' + (run.isLive ? ' rc-live' : '') + '">'
+      + (run.isLive ? '🔴 ' : '📜 ') + escHtml(run.label) + '</th>';
+  });
+  html += '</tr></thead>';
+
+  function summaryRow(labelText, extraClass, getVal) {
+    var row = '<tr class="rc-summary-row' + (extraClass ? ' ' + extraClass : '') + '"><td class="rc-sticky rc-summary-label">' + labelText + '</td>';
+    runs.forEach(function(run) {
+      row += '<td class="rc-cell rc-summary-val' + (extraClass === "rc-total-row" ? ' rc-total-val' : '') + '">' + getVal(run.data) + '</td>';
+    });
+    return row + '</tr>';
+  }
+
+  html += '<tbody class="rc-summary-tbody">';
+  html += summaryRow("Bosse besiegt", "", function(d) { return d ? (d.doneCount + ' / ' + d.totalCount) : '–'; });
+  html += summaryRow("Boss-Tode",     "", function(d) { return d ? d.bossDeathsSum.toLocaleString("de-DE") : '–'; });
+  html += summaryRow("Sonstige Tode", "", function(d) { return d ? d.fieldDeathsTotal.toLocaleString("de-DE") : '–'; });
+  html += summaryRow("Tode gesamt",   "rc-total-row", function(d) { return d ? d.totalDeaths.toLocaleString("de-DE") : '–'; });
+  html += '</tbody>';
+
+  html += '<tbody>';
+
+  var lastArea = null;
+  bosses.forEach(function(b) {
+    if (b.area !== lastArea) {
+      html += '<tr class="rc-area-row"><td class="rc-sticky rc-area-cell" colspan="' + colCount + '">' + escHtml(b.area) + '</td></tr>';
+      lastArea = b.area;
+    }
+    var key = b.area + "|" + b.boss;
+    html += '<tr><td class="rc-sticky rc-boss-cell' + (b.isDLC ? ' rc-dlc' : '') + '" data-tip="' + escAttr(b.boss) + '" data-tip-always="1">' + escHtml(b.boss) + '</td>';
+    runs.forEach(function(run) {
+      var entry = run.data ? run.data.bossMap[key] : null;
+      if (!entry) {
+        html += '<td class="rc-cell rc-na">–</td>';
+      } else if (entry.done) {
+        html += '<td class="rc-cell rc-done">✔ <span class="rc-cell-deaths">' + entry.deaths + '</span></td>';
+      } else if (entry.deaths > 0) {
+        html += '<td class="rc-cell rc-open">✗ <span class="rc-cell-deaths">' + entry.deaths + '</span></td>';
+      } else {
+        html += '<td class="rc-cell rc-open">–</td>';
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+
+  body.innerHTML = html;
+
+  // Sticky-Offsets berechnen: die Zusammenfassungs-Zeilen sollen direkt unter
+  // dem Tabellenkopf angepinnt bleiben (statt am unteren Rand zu "schweben").
+  // Dafür wird für jede Zeile die kumulierte Höhe der darüberliegenden
+  // Zeilen (Kopf + vorherige Summary-Zeilen) als "top" gesetzt.
+  requestAnimationFrame(function() {
+    var theadEl = body.querySelector(".run-compare-table thead");
+    var summaryRows = body.querySelectorAll(".rc-summary-tbody tr");
+    if (!theadEl || !summaryRows.length) return;
+    var offset = Math.round(theadEl.getBoundingClientRect().height);
+    summaryRows.forEach(function(tr) {
+      var cells = tr.querySelectorAll("td");
+      cells.forEach(function(td) { td.style.top = offset + "px"; });
+      offset += Math.round(tr.getBoundingClientRect().height);
+    });
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
