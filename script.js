@@ -2452,7 +2452,7 @@ function processData(rows) {
     var area = r.c[0] && r.c[0].v ? r.c[0].v.trim() : "";
     var boss = r.c[1] && r.c[1].v ? r.c[1].v.trim() : "";
     if (!area || !boss) return;
-    if (area === "Gebiet" && boss === "Boss") return;
+    if (area === "Area" && boss === "Boss") return;
     if (boss === "SHADOW OF THE ERDTREE DLC") return;
 
     var isBaseGame = separatorIndex === -1 || index < separatorIndex;
@@ -3080,7 +3080,7 @@ function switchRun(sheetName, label, isLive) {
   if (banner) {
     banner.classList.toggle("visible", viewingArchive);
     document.getElementById("archive-banner-text").textContent =
-      "Du betrachtest einen archivierten Durchgang (" + label + ") — nur lesbar.";
+      "You are viewing an archived run (" + label + ") — read-only.";
   }
 
   document.getElementById("loading-overlay").style.display = "flex";
@@ -3092,20 +3092,20 @@ function switchRun(sheetName, label, isLive) {
   loadData();
   loadClips();
   loadBingo();
-  showToast((viewingArchive ? "📜 Archiv geöffnet: " : "🔴 Zurück zum aktuellen Run: ") + label, 2500);
+  showToast((viewingArchive ? "📜 Archive opened: " : "🔴 Back to the current run: ") + label, 2500);
 }
 
 function startNGPlusRun() {
   if (!isAuthorized()) return;
-  var confirmMsg = "NG+ wirklich starten?\n\n"
-    + "Der aktuelle Durchgang (" + currentLiveLabel + ") wird vollständig als Archiv gespeichert "
-    + "(inkl. aller Bosse, Clips und Bingo).\n"
-    + "Danach werden auf der Live-Seite ALLE Bosse, Tode, Feldtode, der Timer und das Bingo-Board "
-    + "zurückgesetzt für einen neuen Durchgang: " + (ngRuns.length === 0 ? "NG+1" : "NG+" + (ngRuns.length + 1)) + ".\n\n"
-    + "Das kann nicht rückgängig gemacht werden. Fortfahren?";
+  var confirmMsg = "Start NG+?\n\n"
+    + "The current run (" + currentLiveLabel + ") is saved in its entirety as an archive "
+    + "(including all bosses, clips and bingo).\n"
+    + "After that, on the live page, ALL bosses, deaths, field deaths, the timer and the bingo board "
+    + "are reset for a new run: " + (ngRuns.length === 0 ? "NG+1" : "NG+" + (ngRuns.length + 1)) + ".\n\n"
+    + "This action cannot be undone. Do you wish to continue?";
   if (!window.confirm(confirmMsg)) return;
 
-  showToast("⏳ NG+ wird gestartet – bitte kurz warten…", 4000);
+  showToast("⏳ NG+ is starting – please wait a moment…", 4000);
 
   fetch(APPS_SCRIPT_URL
     + "?action=startNGPlus"
@@ -3115,7 +3115,7 @@ function startNGPlusRun() {
   .then(function(r) { return r.text(); })
   .then(function(t) {
     if (t && t.indexOf("OK:") === 0) {
-      showToast("✔ NG+ gestartet! Der neue Durchgang beginnt jetzt.", 4000);
+      showToast("✔ NG+ has started! The new run begins now.", 4000);
       setTimeout(function() {
         loadNGRuns();
         loadData();
@@ -3125,18 +3125,18 @@ function startNGPlusRun() {
       return;
     }
     if (t && t.indexOf("unauthorized") !== -1) {
-      showToast("⚠ Keine Berechtigung für NG+ (nur Admins).", 5000);
+      showToast("⚠ No access to NG+ (admins only).", 5000);
       return;
     }
     // Jede andere Antwort (z.B. "ERROR:unknown action" bei nicht neu deploytem
     // Apps Script, oder ein anderer serverseitiger Fehler) ist KEIN Erfolg –
     // hier wurde weder archiviert noch zurückgesetzt.
-    console.error("[NG+] Unerwartete Server-Antwort:", t);
-    showToast("⚠ NG+ fehlgeschlagen: " + (t || "keine Antwort vom Server") + " — bitte Apps-Script-Deployment prüfen.", 7000);
+    console.error("[NG+] Unexpected server response:", t);
+    showToast("⚠ NG+ failed: " + (t || "no answer from the server") + " — Please check the Apps Script deployment.", 7000);
   })
   .catch(function(err) {
-    console.error("[NG+] Fehler:", err);
-    showToast("⚠ NG+ konnte nicht gestartet werden (Verbindungsfehler).", 5000);
+    console.error("[NG+] Error:", err);
+    showToast("⚠ NG+ could not be started (connection error)", 5000);
   });
 }
 
@@ -3285,7 +3285,7 @@ function loadRunCompareData() {
     }, 0);
 
     var subtitleEl = document.getElementById("run-compare-subtitle");
-    if (subtitleEl) subtitleEl.textContent = runs.length + (runs.length === 1 ? " Durchgang · " : " Durchgänge · ") + totalDefeated + " Bosse besiegt";
+    if (subtitleEl) subtitleEl.textContent = runs.length + (runs.length === 1 ? " Run · " : " Runs · ") + totalDefeated + " Bosses defeated";
 
     renderRunCompareTable();
   });
@@ -3299,11 +3299,11 @@ function renderRunCompareTable() {
   var bosses = runCompareData.canonicalBosses;
 
   if (runs.length === 0) {
-    body.innerHTML = '<div class="run-compare-loading">Keine Durchgänge gefunden.</div>';
+    body.innerHTML = '<div class="run-compare-loading">No runs found.</div>';
     return;
   }
   if (bosses.length === 0) {
-    body.innerHTML = '<div class="run-compare-loading">Keine Boss-Daten gefunden.</div>';
+    body.innerHTML = '<div class="run-compare-loading">No boss data found</div>';
     return;
   }
 
