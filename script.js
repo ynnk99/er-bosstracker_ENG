@@ -45,7 +45,7 @@ function getBingoTextUrl()  { return gvizUrl(currentRunSheet, "O15:S19"); }
 function getBingoStateUrl() { return gvizUrl(currentRunSheet, "O20:S24"); }
 
 const RANKING_TOP_N = 10;
-const STREAMER_LOGIN = "";
+const STREAMER_LOGIN = "mahluna";
 
 const MAIN_BOSSES = new Set([
   "Margit, the Fell Omen",
@@ -140,11 +140,11 @@ function renderBossLevelPanel() {
   if (subtitle) {
     var firstTry = done.filter(function(b) { return b.deaths === 0; }).length;
     var firstTryPct = done.length > 0 ? Math.round((firstTry / done.length) * 100) : 0;
-    subtitle.textContent = done.length + " Bosse besiegt · " + firstTry + " First Try (" + firstTryPct + "%)";
+    subtitle.textContent = done.length + " Bosses defeated · " + firstTry + " First Try (" + firstTryPct + "%)";
   }
 
   if (done.length === 0) {
-    list.innerHTML = '<div class="boss-level-empty">Noch keine Bosse mit Level-Eintrag besiegt.</div>';
+    list.innerHTML = '<div class="boss-level-empty">No bosses with a recorded level defeated yet.</div>';
     return;
   }
 
@@ -162,7 +162,7 @@ function renderBossLevelPanel() {
     });
     var bosskillClip = allClips.find(function(c) { return c.category === "Bosskill"; });
     var clipHtml = bosskillClip
-      ? '<a class="boss-level-clip-link" href="' + escAttr(bosskillClip.url) + '" target="_blank" rel="noopener" data-tip="Bosskill-Clip ansehen" data-tip-always="1">'
+      ? '<a class="boss-level-clip-link" href="' + escAttr(bosskillClip.url) + '" target="_blank" rel="noopener" data-tip="View bosskill clip" data-tip-always="1">'
         + '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 2H3C1.9 2 1 2.9 1 4v16c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H3V4h18v16zM10 8.5v7l6-3.5-6-3.5z"/></svg>'
         + '</a>'
       : '<span class="boss-level-clip-empty"></span>';
@@ -249,7 +249,7 @@ function toolboxSetElapsed() {
     ).catch(function(e) { console.error("[Toolbox] setElapsed:", e); });
   }
 
-  showToast("⏱ Timer gesetzt: " + fmtTime(ms), 2000);
+  showToast("⏱ Timer set: " + fmtTime(ms), 2000);
 }
 
 function toolboxSetTimerLabel() {
@@ -260,7 +260,7 @@ function toolboxSetTimerLabel() {
   // Lokal sofort anwenden
   timerLabel = label;
   var labelEl = document.getElementById("val-timer-label");
-  if (labelEl) labelEl.textContent = timerLabel ? timerLabel + ":" : "Aktueller Boss:";
+  if (labelEl) labelEl.textContent = timerLabel ? timerLabel + ":" : "Current Boss:";
 
   // Sheet: N3 setzen (leer = Inhalt löschen)
   if (TOOLBOX_SCRIPT_URL) {
@@ -271,7 +271,7 @@ function toolboxSetTimerLabel() {
     ).catch(function(e) { console.error("[Toolbox] setTimerLabel:", e); });
   }
 
-  showToast(label ? "\uD83C\uDFF7 Label gesetzt: " + label : "\uD83C\uDFF7 Label geleert", 2000);
+  showToast(label ? "\uD83C\uDFF7 Label set: " + label : "\uD83C\uDFF7 Label cleared", 2000);
 }
 
 document.addEventListener('click', function(e) {
@@ -611,7 +611,7 @@ function escAttr(str) {
 
 function loginWithTwitch() {
   if (!TWITCH_CLIENT_ID || TWITCH_CLIENT_ID === "DEINE_CLIENT_ID_HIER") {
-    showToast("⚠ Twitch Client ID nicht konfiguriert!", 4000);
+    showToast("⚠ Twitch Client ID not configured!", 4000);
     return;
   }
   var scope = "";
@@ -665,7 +665,7 @@ function checkAuthOnLoad() {
         currentUser  = null;
         userIsEditor = false;
         updateLoginUI();
-        showToast("\u26a0 Twitch-Sitzung abgelaufen – bitte neu einloggen.", 6000);
+        showToast("\u26a0 Twitch session expired – please log in again.", 6000);
       });
     } catch (e) {
       localStorage.removeItem("twitch_token");
@@ -696,13 +696,13 @@ function fetchTwitchUser(token) {
     updateLoginUI();
     renderFromCache();
     showToast(userIsEditor
-      ? "✔ Willkommen " + currentUser.display_name + " — Bearbeitungsrechte aktiv"
-      : "👁 Eingeloggt als " + currentUser.display_name + " (nur lesen)", 4000);
+      ? "✔ Welcome " + currentUser.display_name + " — editing rights active"
+      : "👁 Logged in as " + currentUser.display_name + " (read only)", 4000);
     checkLiveStatus();
   })
   .catch(function(err) {
     console.error("[Auth] Fehler:", err);
-    showToast("⚠ Twitch-Anmeldung fehlgeschlagen", 3500);
+    showToast("⚠ Twitch login failed", 3500);
   });
 }
 
@@ -768,7 +768,7 @@ function updateLoginUI() {
       badge.className    = "user-role-badge editor";
       authNotice.classList.remove("visible");
     } else {
-      badge.textContent  = "● Zuschauer";
+      badge.textContent  = "● Viewer";
       badge.className    = "user-role-badge viewer";
       authNotice.classList.add("visible");
     }
@@ -824,7 +824,7 @@ function checkLiveStatus() {
       el.className = "live-badge is-live";
       el.innerHTML = '<a class="live-link" href="https://twitch.tv/' + STREAMER_LOGIN + '" target="_blank" rel="noopener">'
         + '<span class="live-dot"></span>'
-        + 'LIVE &mdash; ' + viewers + ' Zuschauer</a>';
+        + 'LIVE &mdash; ' + viewers + ' viewers</a>';
     } else {
       el.className = "live-badge is-offline";
       el.innerHTML = '<a class="live-link" href="https://twitch.tv/' + STREAMER_LOGIN + '" target="_blank" rel="noopener">'
@@ -868,7 +868,7 @@ function writeToSheet(area, boss, action, value) {
         currentUser  = null;
         userIsEditor = false;
         updateLoginUI();
-        showToast("\u26a0 Sitzung abgelaufen – bitte neu einloggen.", 5000);
+        showToast("\u26a0 Session expired – please log in again.", 5000);
       }
     })
     .catch(function() {
@@ -899,7 +899,7 @@ function applyLocalBossChange(area, boss, field, value) {
   }
 
   if (field === "done" && value === true && !oldDone && MAIN_BOSSES.has(boss)) {
-    showToast("✔ " + boss + " besiegt!");
+    showToast("✔ " + boss + " defeated!");
   }
 }
 
@@ -1079,11 +1079,11 @@ function updateMenuDisplay() {
   if (menuState.done) {
     doneBtn.className   = "boss-menu-action-btn active";
     doneIcon.textContent = "☑";
-    doneLabel.textContent = "Als nicht besiegt markieren";
+    doneLabel.textContent = "Mark as not defeated";
   } else {
     doneBtn.className   = "boss-menu-action-btn";
     doneIcon.textContent = "☐";
-    doneLabel.textContent = "Als besiegt markieren";
+    doneLabel.textContent = "Mark as defeated";
   }
 
   var pinBtn   = document.getElementById("menu-pin-btn");
@@ -1092,11 +1092,11 @@ function updateMenuDisplay() {
   if (menuState.pinned) {
     pinBtn.className    = "boss-menu-action-btn active-pin";
     pinIcon.textContent = "📍";
-    pinLabel.textContent = "Anpinnung entfernen";
+    pinLabel.textContent = "Remove pin";
   } else {
     pinBtn.className    = "boss-menu-action-btn";
     pinIcon.textContent = "📌";
-    pinLabel.textContent = "Anpinnen";
+    pinLabel.textContent = "Pin";
   }
 }
 
@@ -1175,7 +1175,7 @@ function openQuickClipMenu(e, bossName, areaName) {
   quickClipArea = areaName || "";
   document.getElementById("quick-clip-boss-name").textContent = bossName;
   document.getElementById("quick-clip-url").value             = "";
-  document.getElementById("quick-clip-cat").value             = "Allgemein";
+  document.getElementById("quick-clip-cat").value             = "General";
   document.getElementById("quick-clip-feedback").textContent  = "";
   document.getElementById("quick-clip-feedback").className    = "quick-clip-feedback";
 
@@ -1222,7 +1222,7 @@ function submitQuickClip() {
   feedEl.className = "quick-clip-feedback";
 
   if (!url) {
-    feedEl.textContent = "⚠ Bitte einen Twitch-Link eingeben.";
+    feedEl.textContent = "⚠ Please enter a Twitch link.";
     feedEl.classList.add("error");
     urlEl.focus();
     return;
@@ -1230,7 +1230,7 @@ function submitQuickClip() {
 
   var parsed = parseTwitchClip(url);
   if (!parsed || parsed.type === "link") {
-    feedEl.textContent = "⚠ Kein gültiger Twitch-Clip- oder VOD-Link.";
+    feedEl.textContent = "⚠ No valid Twitch clip or VOD link.";
     feedEl.classList.add("error");
     urlEl.focus();
     return;
@@ -1238,12 +1238,12 @@ function submitQuickClip() {
 
   var isDupe = clipsData.some(function(c) { return c.url.trim() === url; });
   if (isDupe) {
-    feedEl.textContent = "⚠ Clip bereits in der Sammlung vorhanden.";
+    feedEl.textContent = "⚠ Clip already in the collection.";
     feedEl.classList.add("error");
     return;
   }
 
-  feedEl.textContent = "⏳ Clip-Datum wird abgerufen…";
+  feedEl.textContent = "⏳ Fetching clip date…";
 
   fetchTwitchClipData(parsed.slug).then(function(clipData) {
     var newClip = { url: url, category: category, title: "", boss: boss, area: area, addedAt: clipData.addedAt, creatorName: clipData.creatorName };
@@ -1257,7 +1257,7 @@ function submitQuickClip() {
 
     renderAreas(currentAreas);
 
-    feedEl.textContent = "✔ Clip gespeichert!";
+    feedEl.textContent = "✔ Clip saved!";
     feedEl.classList.add("success");
 
     writeClipToSheet(url, category, "", boss, clipData.addedAt, clipData.creatorName, area);
@@ -1333,7 +1333,7 @@ function updateTimerDisplay() {
     : timerElapsed;
   document.getElementById("val-timer").textContent = fmtTime(elapsed);
   var labelEl = document.getElementById("val-timer-label");
-  if (labelEl) labelEl.textContent = timerLabel ? timerLabel + ":" : "Aktueller Boss:";
+  if (labelEl) labelEl.textContent = timerLabel ? timerLabel + ":" : "Current Boss:";
 }
 
 function startTimerTick() {
@@ -1444,7 +1444,7 @@ function applySearch() {
   });
 
   if (query.length > 0) {
-    countEl.textContent = totalMatches + " Treffer";
+    countEl.textContent = totalMatches + " matches";
     countEl.classList.add("visible");
   } else {
     countEl.classList.remove("visible");
@@ -1484,15 +1484,15 @@ function renderRanking(allBosses) {
   if (subtitle) {
     var doneBossCount = allBosses.filter(function(b) { return b.done; }).length;
     subtitle.textContent = top.length > 0
-      ? "— Top " + top.length + " von " + doneBossCount + " erledigten Bossen"
-      : "— Du bist noch nicht gestorben - noch.";
+      ? "— Top " + top.length + " of " + doneBossCount + " bosses defeated"
+      : "— You have not died yet - yet.";
   }
 
   var listEl = document.getElementById("ranking-list");
   if (!listEl) return;
 
   if (top.length === 0) {
-    listEl.innerHTML = '<div class="ranking-empty">Du bist noch nicht gestorben - noch.</div>';
+    listEl.innerHTML = '<div class="ranking-empty">You have not died yet - yet.</div>';
     return;
   }
 
@@ -1550,7 +1550,7 @@ function renderChart(allBosses) {
   var dayCount  = dates.length;
   var bossCount = allBosses.filter(function(b){ return b.done && b.date; }).length;
   document.getElementById("chart-subtitle").textContent =
-  "— " + dayCount + (dayCount === 1 ? " Tag, " : " Tage, ") + bossCount + (bossCount === 1 ? " Boss erledigt" : " Bosse erledigt");
+  "— " + dayCount + (dayCount === 1 ? " day, " : " days, ") + bossCount + (bossCount === 1 ? " boss defeated" : " bosses defeated");
 
   var counts  = dates.map(function(d) { return byDate[d].length; });
   var bossList = dates.map(function(d) { return byDate[d]; });
@@ -1564,7 +1564,7 @@ function renderChart(allBosses) {
     data: {
       labels: dates,
       datasets: [{
-        label: "Bosse besiegt",
+        label: "Bosses defeated",
         data: counts,
         backgroundColor: "rgba(201, 164, 74, 0.35)",
         borderColor: "rgba(201, 164, 74, 0.85)",
@@ -1590,7 +1590,7 @@ function renderChart(allBosses) {
             title: function(items) { return items[0].label; },
             label: function(item) {
               var list = bossList[item.dataIndex];
-              return ["† " + list.length + " Boss" + (list.length > 1 ? "e" : "") + ":"]
+              return ["† " + list.length + " boss" + (list.length > 1 ? "es" : "") + ":"]
                 .concat(list.map(function(n){ return "  · " + n; }));
             }
           }
@@ -1781,7 +1781,7 @@ function toggleClipViewMode() {
   if (clipViewMode === 'reels') {
     toggleBtn.classList.add("active");
     toggleBtn.querySelector(".clip-view-toggle-icon").textContent = "▤";
-    toggleBtn.setAttribute("data-tip", "Raster-Ansicht");
+    toggleBtn.setAttribute("data-tip", "Grid view");
     tabsEl.style.display   = "none";
     filterEl.style.display = "none";
     bodyEl.style.display   = "none";
@@ -1790,7 +1790,7 @@ function toggleClipViewMode() {
   } else {
     toggleBtn.classList.remove("active");
     toggleBtn.querySelector(".clip-view-toggle-icon").textContent = "▤";
-    toggleBtn.setAttribute("data-tip", "Reel-Modus");
+    toggleBtn.setAttribute("data-tip", "Reel mode");
     tabsEl.style.display   = "";
     filterEl.style.display = "";
     bodyEl.style.display   = "";
@@ -1808,7 +1808,7 @@ function renderClipModal() {
   if (clipsData.length === 0) {
     if (loadEl) loadEl.style.display = "flex";
     tabsEl.innerHTML = "";
-    bodyEl.innerHTML = '<div class="clip-empty"><span class="clip-empty-icon">🎬</span><span>Noch keine Clips vorhanden.</span></div>';
+    bodyEl.innerHTML = '<div class="clip-empty"><span class="clip-empty-icon">🎬</span><span>No clips yet.</span></div>';
     return;
   }
 
@@ -1818,14 +1818,14 @@ function renderClipModal() {
 
   if (filtered.length === 0) {
     tabsEl.innerHTML = "";
-    var filterLabel = { "today": "heute", "7d": "in den letzten 7 Tagen", "30d": "in den letzten 30 Tagen", "custom": "in diesem Zeitraum" }[clipDateFilter] || "";
-    bodyEl.innerHTML = '<div class="clip-empty"><span class="clip-empty-icon">📅</span><span>Keine Clips ' + filterLabel + ' vorhanden.</span></div>';
+    var filterLabel = { "today": "for today", "7d": "in the last 7 days", "30d": "in the last 30 days", "custom": "in this time range" }[clipDateFilter] || "";
+    bodyEl.innerHTML = '<div class="clip-empty"><span class="clip-empty-icon">📅</span><span>No clips found ' + filterLabel + '.</span></div>';
     return;
   }
 
   var categories = {};
   filtered.forEach(function(c) {
-    var cat = c.category || "Sonstige";
+    var cat = c.category || "Other";
     if (!categories[cat]) categories[cat] = [];
     categories[cat].push(c);
   });
@@ -1878,13 +1878,13 @@ function renderClipReelSlide(clip, index) {
   var mediaHtml = embedUrl
     ? '<div class="clip-reel-media" data-embed-url="' + escAttr(embedUrl) + '" data-clip-index="' + index + '" data-muted="' + (reelSoundPreferred ? "0" : "1") + '">'
       + '<div class="clip-reel-media-inner"></div>'
-      + '<button class="clip-reel-mute" onclick="toggleReelMute(this)" data-tip="Ton ein/aus" data-tip-always="1">'
+      + '<button class="clip-reel-mute" onclick="toggleReelMute(this)" data-tip="Toggle sound" data-tip-always="1">'
       + '<span class="clip-reel-mute-icon">' + (reelSoundPreferred ? "🔊" : "🔇") + '</span></button>'
       + '</div>'
     : '<div class="clip-reel-media">'
       + '<div class="clip-placeholder" onclick="window.open(\'' + escAttr(linkUrl) + '\',\'_blank\')">'
       + '<span class="clip-placeholder-icon">▶️</span>'
-      + '<span class="clip-placeholder-text">Clip öffnen</span>'
+      + '<span class="clip-placeholder-text">Open clip</span>'
       + '</div></div>';
 
   return '<div class="clip-reel-slide" data-reel-index="' + index + '">'
@@ -1892,12 +1892,12 @@ function renderClipReelSlide(clip, index) {
     + '<div class="clip-reel-info">'
     + (clip.title ? '<p class="clip-reel-title">' + escHtml(clip.title) + '</p>' : '')
     + '<div class="clip-reel-meta">'
-    + '<span class="clip-reel-category">' + escHtml(clip.category || "Sonstige") + '</span>'
+    + '<span class="clip-reel-category">' + escHtml(clip.category || "Other") + '</span>'
     + (clip.boss ? '<span class="clip-reel-boss">🎮 ' + escHtml(clip.boss) + '</span>' : '')
     + (clip.creatorName ? '<span class="clip-reel-creator">✂ ' + escHtml(clip.creatorName) + '</span>' : '')
     + (clip.addedAt ? '<span class="clip-reel-date">📅 ' + formatClipDate(clip.addedAt) + '</span>' : '')
     + '</div></div>'
-    + '<a href="' + escAttr(linkUrl) + '" target="_blank" rel="noopener" class="clip-reel-open" data-tip="Auf Twitch öffnen" data-tip-always="1">'
+    + '<a href="' + escAttr(linkUrl) + '" target="_blank" rel="noopener" class="clip-reel-open" data-tip="Open on Twitch" data-tip-always="1">'
     + '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"/></svg>'
     + '</a></div>';
 }
@@ -2025,7 +2025,7 @@ function renderClipCard(clip, index) {
     embedHtml = '<div class="clip-embed-wrapper">'
       + '<div class="clip-placeholder" onclick="window.open(\'' + escAttr(linkUrl) + '\',\'_blank\')">'
       + '<span class="clip-placeholder-icon">▶️</span>'
-      + '<span class="clip-placeholder-text">Clip öffnen</span>'
+      + '<span class="clip-placeholder-text">Open clip</span>'
       + '</div></div>';
   }
 
@@ -2055,7 +2055,7 @@ function renderClipCard(clip, index) {
     + (clip.creatorName ? '<span class="clip-creator">✂ ' + escHtml(clip.creatorName) + '</span>' : '')
     + '<a href="' + escAttr(linkUrl) + '" target="_blank" rel="noopener" class="clip-open-link">'
     + '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"/></svg>'
-    + 'Auf Twitch</a>'
+    + 'On Twitch</a>'
     + '</div>'
     + '</div>'
     + bossEditHtml
@@ -2108,14 +2108,14 @@ function submitNewClip() {
 
   feedEl.className = "add-clip-feedback";
   if (!url) {
-    feedEl.textContent = "⚠ Bitte einen Twitch-Link eingeben.";
+    feedEl.textContent = "⚠ Please enter a Twitch link.";
     feedEl.classList.add("error");
     urlEl.focus();
     return;
   }
   var parsed = parseTwitchClip(url);
   if (!parsed || parsed.type === "link") {
-    feedEl.textContent = "⚠ Kein gültiger Twitch-Clip- oder VOD-Link erkannt.";
+    feedEl.textContent = "⚠ No valid Twitch clip or VOD link detected.";
     feedEl.classList.add("error");
     urlEl.focus();
     return;
@@ -2123,12 +2123,12 @@ function submitNewClip() {
 
   var isDupe = clipsData.some(function(c) { return c.url.trim() === url; });
   if (isDupe) {
-    feedEl.textContent = "⚠ Dieser Clip ist bereits in der Sammlung.";
+    feedEl.textContent = "⚠ This clip is already in the collection.";
     feedEl.classList.add("error");
     return;
   }
 
-  feedEl.textContent = "⏳ Clip-Datum wird abgerufen…";
+  feedEl.textContent = "⏳ Fetching clip date…";
 
   fetchTwitchClipData(parsed.slug).then(function(clipData) {
     var newClip = { url: url, category: category, title: title, boss: boss, addedAt: clipData.addedAt, creatorName: clipData.creatorName };
@@ -2143,10 +2143,10 @@ function submitNewClip() {
     activeCategory = category;
     renderClipModal();
 
-    feedEl.textContent = "✔ Clip gespeichert – wird gleich im Sheet hinterlegt.";
+    feedEl.textContent = "✔ Clip saved – will be added to the sheet shortly.";
     urlEl.value   = "";
     titleEl.value = "";
-    catEl.value   = "Allgemein";
+    catEl.value   = "General";
     if (bossEl) bossEl.value = "";
 
     setTimeout(function() {
@@ -2208,7 +2208,7 @@ function rebuildClipsByBoss() {
 }
 
 function getBossOptions(selectedBoss) {
-  var opts = '<option value="">– Kein Boss –</option>';
+  var opts = '<option value="">– No boss –</option>';
   Array.from(MAIN_BOSSES).sort().forEach(function(b) {
     opts += '<option value="' + escAttr(b) + '"' + (b === selectedBoss ? ' selected' : '') + '>' + escHtml(b) + '</option>';
   });
@@ -2282,7 +2282,7 @@ function updateClipBoss(clipUrl, newBoss) {
   renderFromCache();
 
   writeBossTagToSheet(clipUrl, newBoss);
-  showToast(newBoss ? "🎮 Boss gesetzt: " + newBoss : "Boss-Zuordnung entfernt", 2500);
+  showToast(newBoss ? "🎮 Boss set: " + newBoss : "Boss assignment removed", 2500);
 }
 
 function writeBossTagToSheet(clipUrl, boss) {
@@ -2322,7 +2322,7 @@ function loadClips() {
       rows.forEach(function(row) {
         if (!row || !row.c) return;
         var url         = row.c[0] && row.c[0].v ? String(row.c[0].v).trim() : "";
-        var category    = row.c[1] && row.c[1].v ? String(row.c[1].v).trim() : "Sonstige";
+        var category    = row.c[1] && row.c[1].v ? String(row.c[1].v).trim() : "Other";
         var title       = row.c[2] && row.c[2].v ? String(row.c[2].v).trim() : "";
         var bossRaw     = row.c[3] && row.c[3].v ? String(row.c[3].v).trim() : "";
         var addedAt     = row.c[4] && row.c[4].v ? String(row.c[4].v).trim() : "";
@@ -2366,14 +2366,14 @@ function setRefreshState(state) {
   var text = document.getElementById("refresh-text");
   if (state === "loading") {
     dot.className = "refresh-dot loading";
-    text.textContent = "Lade…";
+    text.textContent = "Loading…";
   } else if (state === "ok") {
     dot.className = "refresh-dot";
     var now = new Date();
-    text.textContent = "Zuletzt: " + now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    text.textContent = "Last update: " + now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   } else {
     dot.style.background = "#c44a3a";
-    text.textContent = "Verbindungsfehler";
+    text.textContent = "Connection error";
   }
 }
 
@@ -2492,7 +2492,7 @@ function processData(rows) {
     if (!(key in previousBossStates)) {
       previousBossStates[key] = done;
     } else if (!previousBossStates[key] && done) {
-      if (MAIN_BOSSES.has(boss)) showToast("✔ " + boss + " besiegt!");
+      if (MAIN_BOSSES.has(boss)) showToast("✔ " + boss + " defeated!");
     }
     previousBossStates[key] = done;
 
@@ -2622,7 +2622,7 @@ function renderAreas(areas) {
       }
       card.innerHTML = '<span class="pinned-deaths">📌 ' + (b.deaths > 0 ? b.deaths : "–") + '</span>'
         + '<span class="pinned-name' + (isMain ? " main-boss" : "") + '">' + escHtml(b.boss) + '</span>'
-        + (isAuthorized() ? '<span class="boss-edit-hint" data-tip="Bearbeiten" data-tip-always="1">✏</span>' : '');
+        + (isAuthorized() ? '<span class="boss-edit-hint" data-tip="Edit" data-tip-always="1">✏</span>' : '');
       pinnedList.appendChild(card);
     });
   } else {
@@ -2703,7 +2703,7 @@ function renderBossRow(b, areaName) {
   var bossClipKey   = areaName + "|" + b.boss;
   var bossClipCount = ((clipsByBoss[bossClipKey] || []).length) + ((clipsByBoss[b.boss] || []).length);
   var clipBadge = bossClipCount > 0
-    ? '<span class="boss-clip-badge" onclick="openBossClipsPanel(\'' + escAttr(b.boss) + '\',\'' + escAttr(areaName) + '\',event)" data-tip="' + bossClipCount + ' Clip' + (bossClipCount > 1 ? 's' : '') + ' ansehen" data-tip-always="1">🎬 ' + bossClipCount + '</span>'
+    ? '<span class="boss-clip-badge" onclick="openBossClipsPanel(\'' + escAttr(b.boss) + '\',\'' + escAttr(areaName) + '\',event)" data-tip="View ' + bossClipCount + ' clip' + (bossClipCount > 1 ? 's' : '') + '" data-tip-always="1">🎬 ' + bossClipCount + '</span>'
     : '';
 
   return '<div class="boss-row' + (b.done ? " done" : "") + editClass + '"'
@@ -2714,7 +2714,7 @@ function renderBossRow(b, areaName) {
     + '<span class="boss-name' + (isMain ? " main" : "") + '" data-tip="' + escAttr(b.boss) + '">' + escHtml(b.boss) + '</span>'
     + clipBadge
     + '<span class="boss-check">✓</span>'
-    + (isAuthorized() ? '<span class="boss-edit-hint" data-tip="Bearbeiten" data-tip-always="1">✏</span>' : '')
+    + (isAuthorized() ? '<span class="boss-edit-hint" data-tip="Edit" data-tip-always="1">✏</span>' : '')
     + '</div>';
 }
 
@@ -2851,7 +2851,7 @@ function renderBingo() {
   if (!bingoCells.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;'
       + 'font-family:\'Crimson Pro\',serif;font-style:italic;color:var(--parchment-dim);opacity:0.5;">'
-      + 'Bingo-Felder werden geladen…</div>';
+      + 'Loading bingo tiles…</div>';
     return;
   }
 
@@ -2893,8 +2893,8 @@ function renderBingo() {
 
   if (subtitle) {
     subtitle.textContent = winLines.length > 0
-      ? "— ✨ BINGO! " + winLines.length + (winLines.length === 1 ? " Linie" : " Linien") + " abgeschlossen"
-      : "— " + totalChecked + " / 25 Felder markiert";
+      ? "— ✨ BINGO! " + winLines.length + (winLines.length === 1 ? " line" : " lines") + " completed"
+      : "— " + totalChecked + " / 25 tiles marked";
   }
   if (banner) banner.style.display = winLines.length > 0 ? "block" : "none";
 }
@@ -2962,7 +2962,7 @@ function saveBingoEdit() {
   prevBingoTextSnap = JSON.stringify(bingoCells);
   closeBingoEdit();
   renderBingo();
-  showToast("✏ Bingo-Feld gespeichert", 2000);
+  showToast("✏ Bingo tile saved", 2000);
   writeBingoTextToSheet(row, col, newText);
 }
 
@@ -3040,12 +3040,12 @@ function renderRunSelector() {
   document.getElementById("run-selector").classList.toggle("archive-active", viewingArchive);
 
   var html = '<div class="run-option' + (!viewingArchive ? ' active' : '') + '" onclick="switchRun(\'' + LIVE_SHEET_NAME + '\', \'' + escAttr(currentLiveLabel) + '\', true)">'
-    + '<span class="run-dot live"></span> ' + escHtml(currentLiveLabel) + ' <span class="run-tag">aktuell</span></div>';
+    + '<span class="run-dot live"></span> ' + escHtml(currentLiveLabel) + ' <span class="run-tag">current</span></div>';
 
   ngRuns.slice().reverse().forEach(function(run) {
     var isActive = viewingArchive && run.sheetName === currentRunSheet;
     html += '<div class="run-option' + (isActive ? ' active' : '') + '" onclick="switchRun(\'' + escAttr(run.sheetName) + '\', \'' + escAttr(run.label) + '\', false)">'
-      + '<span class="run-dot archive"></span> ' + escHtml(run.label) + ' <span class="run-tag">Archiv</span></div>';
+      + '<span class="run-dot archive"></span> ' + escHtml(run.label) + ' <span class="run-tag">Archive</span></div>';
   });
   list.innerHTML = html;
 
@@ -3192,7 +3192,7 @@ function parseSheetRowsForCompare(rows) {
     var area = r.c[0] && r.c[0].v ? String(r.c[0].v).trim() : "";
     var boss = r.c[1] && r.c[1].v ? String(r.c[1].v).trim() : "";
     if (!area || !boss) return;
-    if (area === "Area" && boss === "Boss") return;
+    if (area === "Gebiet" && boss === "Boss") return;
     if (boss === "SHADOW OF THE ERDTREE DLC") return;
 
     var isDLC  = separatorIndex !== -1 && index > separatorIndex;
@@ -3225,9 +3225,9 @@ function loadRunCompareData() {
   runCompareLoading = true;
 
   var subtitle = document.getElementById("run-compare-subtitle");
-  if (subtitle) subtitle.textContent = "wird geladen…";
+  if (subtitle) subtitle.textContent = "loading…";
   var body = document.getElementById("run-compare-body");
-  if (body) body.innerHTML = '<div class="run-compare-loading">⏳ Lade Durchgänge…</div>';
+  if (body) body.innerHTML = '<div class="run-compare-loading">⏳ Loading runs…</div>';
 
   var runsList = ngRuns.map(function(r) {
     return { label: r.label, sheetName: r.sheetName, isLive: false };
@@ -3326,10 +3326,10 @@ function renderRunCompareTable() {
   }
 
   html += '<tbody class="rc-summary-tbody">';
-  html += summaryRow("Bosse besiegt", "", function(d) { return d ? (d.doneCount + ' / ' + d.totalCount) : '–'; });
-  html += summaryRow("Boss-Tode",     "", function(d) { return d ? d.bossDeathsSum.toLocaleString("de-DE") : '–'; });
-  html += summaryRow("Sonstige Tode", "", function(d) { return d ? d.fieldDeathsTotal.toLocaleString("de-DE") : '–'; });
-  html += summaryRow("Tode gesamt",   "rc-total-row", function(d) { return d ? d.totalDeaths.toLocaleString("de-DE") : '–'; });
+  html += summaryRow("Bosses defeated", "", function(d) { return d ? (d.doneCount + ' / ' + d.totalCount) : '–'; });
+  html += summaryRow("Boss deaths",   "", function(d) { return d ? d.bossDeathsSum.toLocaleString("de-DE") : '–'; });
+  html += summaryRow("Other deaths", "", function(d) { return d ? d.fieldDeathsTotal.toLocaleString("de-DE") : '–'; });
+  html += summaryRow("Total deaths",  "rc-total-row", function(d) { return d ? d.totalDeaths.toLocaleString("de-DE") : '–'; });
   html += '</tbody>';
 
   html += '<tbody>';
