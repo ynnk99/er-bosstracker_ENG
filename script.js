@@ -45,7 +45,7 @@ function getBingoTextUrl()  { return gvizUrl(currentRunSheet, "O15:S19"); }
 function getBingoStateUrl() { return gvizUrl(currentRunSheet, "O20:S24"); }
 
 const RANKING_TOP_N = 10;
-const STREAMER_LOGIN = "mahluna";
+const STREAMER_LOGIN = "";
 
 const MAIN_BOSSES = new Set([
   "Margit, the Fell Omen",
