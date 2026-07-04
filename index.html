@@ -138,11 +138,11 @@
 
     <!-- ── NG+ RUN-SELECTOR ── -->
     <div class="run-selector" id="run-selector">
-      <button class="run-selector-btn" onclick="toggleRunSelector()" data-tip="Durchgang wählen (NG / NG+1 / …)" data-tip-always="1">
+      <button class="run-selector-btn" onclick="toggleRunSelector()" data-tip="Select run (NG / NG+1 / …)" data-tip-always="1">
         <span id="run-selector-label">🔴 NG</span>
         <span class="run-selector-arrow">▾</span>
       </button>
-      <button class="run-compare-btn" onclick="openRunCompare()" data-tip="Durchgänge vergleichen" data-tip-always="1">📊</button>
+      <button class="run-compare-btn" onclick="openRunCompare()" data-tip="Compare runs" data-tip-always="1">📊</button>
       <div class="run-selector-list" id="run-selector-list"></div>
     </div>
 
@@ -153,23 +153,23 @@
 
   <div class="auth-notice archive-notice" id="archive-banner">
     <span class="notice-icon">📜</span>
-    <span id="archive-banner-text">Du betrachtest einen archivierten Durchgang — nur lesbar.</span>
+    <span id="archive-banner-text">You are viewing an archived run — read-only.</span>
   </div>
 
   <div class="auth-notice" id="auth-notice">
     <span class="notice-icon">👁</span>
-    <span id="auth-notice-text">Du bist als Zuschauer angemeldet. Bearbeitungsrechte müssen von einem Admin vergeben werden.</span>
+    <span id="auth-notice-text">You are logged in as a viewer. Editing rights must be granted by an admin.</span>
   </div>
 
   <div class="stats-bar">
     <div class="stat-chip deaths-chip" id="stat-deaths">
       <span class="icon">💀</span>
-      <span>Tode:</span>
+      <span>Deaths:</span>
       <span class="value" id="val-deaths">–</span>
     </div>
     <div class="stat-chip stat-chip-clickable" id="stat-bosses" onclick="openBossLevelPanel()" data-tip="Besiegte Bosse nach Level sortiert anzeigen" data-tip-always="1">
       <span class="icon">🏆</span>
-      <span>Bosse:</span>
+      <span>Bosses:</span>
       <span class="value" id="val-bosses">–</span>
       <span class="stat-chip-arrow">▾</span>
     </div>
